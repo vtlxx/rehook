@@ -1,0 +1,244 @@
+{
+  "results": [
+    {
+      "key": "v1",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 5,
+      "tone_fit": 5,
+      "winner_likeness": 5
+    },
+    {
+      "key": "v2",
+      "stop_scroll": 4,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v3",
+      "stop_scroll": 4,
+      "specificity": 5,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v4",
+      "stop_scroll": 5,
+      "specificity": 4,
+      "clarity_3s": 5,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v5",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 3,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v6",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v7",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 5,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v8",
+      "stop_scroll": 5,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v9",
+      "stop_scroll": 3,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v10",
+      "stop_scroll": 3,
+      "specificity": 3,
+      "clarity_3s": 3,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v11",
+      "stop_scroll": 5,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v12",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v13",
+      "stop_scroll": 3,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v14",
+      "stop_scroll": 3,
+      "specificity": 2,
+      "clarity_3s": 3,
+      "tone_fit": 4,
+      "winner_likeness": 2
+    },
+    {
+      "key": "v15",
+      "stop_scroll": 4,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v16",
+      "stop_scroll": 4,
+      "specificity": 5,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v17",
+      "stop_scroll": 3,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v18",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 5,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v19",
+      "stop_scroll": 4,
+      "specificity": 3,
+      "clarity_3s": 5,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v20",
+      "stop_scroll": 3,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v21",
+      "stop_scroll": 4,
+      "specificity": 2,
+      "clarity_3s": 3,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v22",
+      "stop_scroll": 3,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v23",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v24",
+      "stop_scroll": 4,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v25",
+      "stop_scroll": 3,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v26",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v27",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 4
+    },
+    {
+      "key": "v28",
+      "stop_scroll": 4,
+      "specificity": 3,
+      "clarity_3s": 4,
+      "tone_fit": 5,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v29",
+      "stop_scroll": 3,
+      "specificity": 4,
+      "clarity_3s": 3,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    },
+    {
+      "key": "v30",
+      "stop_scroll": 4,
+      "specificity": 4,
+      "clarity_3s": 4,
+      "tone_fit": 4,
+      "winner_likeness": 3
+    }
+  ]
+}

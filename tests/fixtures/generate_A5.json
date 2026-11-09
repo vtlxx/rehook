@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "curiosity",
+      "hook_vo": "There's a reason your socks vanish. Here's the fix.",
+      "on_screen_text": "Why socks vanish",
+      "first_frame": "Bold on-screen text over a spinning washer.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "Ever wonder why socks never come back as a pair?",
+      "on_screen_text": "Why never a pair?",
+      "first_frame": "On-screen text 'Why never a pair?' over a laundry basket.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "contrast",
+      "hook_vo": "One sock goes into the wash, zero come out.",
+      "on_screen_text": "One in. Zero out.",
+      "first_frame": "Big on-screen text over a washer door.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "bold-statement",
+      "hook_vo": "This tiny magnet will free your Sundays.",
+      "on_screen_text": "Free your Sundays",
+      "first_frame": "On-screen text over a calendar with Sunday circled.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "number",
+      "hook_vo": "Three loads a week, every pair still together.",
+      "on_screen_text": "Every pair, together",
+      "first_frame": "On-screen counter ticking up laundry loads while pairs stay linked.",
+      "bridge_line": ""
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "pov",
+      "hook_vo": "POV: it's dorm laundry day and you own one sock.",
+      "on_screen_text": "Dorm laundry, one sock",
+      "first_frame": "POV shot looking into a shared dorm washer.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "confession",
+      "hook_vo": "Dorm laundry ate half of my socks this semester.",
+      "on_screen_text": "Dorm laundry strikes again!",
+      "first_frame": "POV pulling an almost empty laundry bag out of a dorm dryer.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "Is the dorm dryer running a sock black market?",
+      "on_screen_text": "Sock black market?",
+      "first_frame": "POV opening a dorm dryer with one lonely sock inside.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "number",
+      "hook_vo": "Four years of college and not one matching pair.",
+      "on_screen_text": "4 years, 0 pairs",
+      "first_frame": "POV looking down at mismatched socks on dorm carpet.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "bold-statement",
+      "hook_vo": "Roommates share everything. My socks just disappear.",
+      "on_screen_text": "Roommate or dryer?",
+      "first_frame": "POV of a roommate's laundry pile with your sock on top.",
+      "bridge_line": ""
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "segments": [
+    {
+      "part": "hook",
+      "timecode": "0-3s",
+      "vo": "I used to lose a sock every single laundry day.",
+      "on_screen": "Where do my socks go?!",
+      "visual": "woman holding one sock over open washer"
+    },
+    {
+      "part": "problem",
+      "timecode": "3-8s",
+      "vo": "Then I found socks that literally lock together.",
+      "on_screen": "",
+      "visual": "close-up of magnetic cuffs clicking"
+    },
+    {
+      "part": "demo",
+      "timecode": "8-15s",
+      "vo": "Tiny magnet on the cuff keeps the pair together in the wash.",
+      "on_screen": "",
+      "visual": "pair tumbling in washer, still attached"
+    },
+    {
+      "part": "offer",
+      "timecode": "15-22s",
+      "vo": "5 pairs for $29, and a fresh drop every quarter.",
+      "on_screen": "5 pairs / $29",
+      "visual": "box of five pairs on a bed"
+    },
+    {
+      "part": "cta",
+      "timecode": "22-25s",
+      "vo": "Take the 30-second quiz to find your size.",
+      "on_screen": "Take the quiz →",
+      "visual": "phone with quiz screen"
+    }
+  ],
+  "winning_angle": {
+    "pain": "losing one sock of a pair in the wash",
+    "persona": "busy parents doing the household laundry",
+    "emotion": "frustration turning into relief",
+    "why": "Everyone has a drawer of single socks, so the first line is instantly relatable; the open washer makes the problem visible before the product appears."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "pov",
+      "hook_vo": "POV: you're hunting for a second sock before school.",
+      "on_screen_text": "Second sock, where?",
+      "first_frame": "POV looking under a kid's bed for a missing sock.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "confession",
+      "hook_vo": "These magnetic cuffs even help my kids' circulation.",
+      "on_screen_text": "Better circulation too",
+      "first_frame": "POV of a parent pulling socks onto a toddler's feet.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "Why do kids' socks only ever come in singles?",
+      "on_screen_text": "Kids' socks: singles only",
+      "first_frame": "POV of a laundry basket full of tiny odd socks.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "number",
+      "hook_vo": "Two kids, one laundry day, a mountain of tiny singles.",
+      "on_screen_text": "Tiny singles everywhere",
+      "first_frame": "POV over a sofa covered in small unmatched socks.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "contrast",
+      "hook_vo": "Their socks go in as pairs and come out as strangers.",
+      "on_screen_text": "Pairs in, strangers out",
+      "first_frame": "POV of a parent holding two tiny socks that don't match.",
+      "bridge_line": ""
+    }
+  ]
+}

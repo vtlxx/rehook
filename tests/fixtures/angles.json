@@ -1,0 +1,58 @@
+{
+  "angles": [
+    {
+      "angle_id": "A1",
+      "slug": "pain-lost-sock",
+      "pain": "sock lost in the wash",
+      "persona": "busy parents",
+      "emotion": "frustration",
+      "frame_format": "close-up",
+      "is_safe": true
+    },
+    {
+      "angle_id": "A2",
+      "slug": "persona-students",
+      "pain": "dorm laundry eats socks",
+      "persona": "college students",
+      "emotion": "humor",
+      "frame_format": "pov",
+      "is_safe": false
+    },
+    {
+      "angle_id": "A3",
+      "slug": "persona-couples",
+      "pain": "arguing over whose socks are whose",
+      "persona": "couples sharing laundry",
+      "emotion": "humor",
+      "frame_format": "talking-head",
+      "is_safe": false
+    },
+    {
+      "angle_id": "A4",
+      "slug": "pain-sorting-time",
+      "pain": "time spent matching socks",
+      "persona": "people who hate folding",
+      "emotion": "relief",
+      "frame_format": "before-after",
+      "is_safe": false
+    },
+    {
+      "angle_id": "A5",
+      "slug": "emotion-curiosity",
+      "pain": "socks mysteriously vanishing",
+      "persona": "busy parents",
+      "emotion": "curiosity",
+      "frame_format": "on-screen-text",
+      "is_safe": false
+    },
+    {
+      "angle_id": "A6",
+      "slug": "pain-kids-socks",
+      "pain": "kids' socks never match",
+      "persona": "busy parents",
+      "emotion": "frustration",
+      "frame_format": "pov",
+      "is_safe": false
+    }
+  ]
+}

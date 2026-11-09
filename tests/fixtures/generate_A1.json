@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "confession",
+      "hook_vo": "I used to lose a sock every single laundry day.",
+      "on_screen_text": "Where do my socks go?",
+      "first_frame": "Close-up of a mom holding one damp sock over an open washer.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "How does a pair go in and only one comes out?",
+      "on_screen_text": "Pair in, single out",
+      "first_frame": "Close-up of a single sock stuck to the washer drum.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "number",
+      "hook_vo": "Seventeen single socks. That's my drawer right now.",
+      "on_screen_text": "17 singles and counting",
+      "first_frame": "Close-up of a drawer full of unmatched socks.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "contrast",
+      "hook_vo": "One sock goes in the wash. Zero come out.",
+      "on_screen_text": "One in, zero out",
+      "first_frame": "Close-up of a hand dropping one sock into an empty washer.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "bold-statement",
+      "hook_vo": "The washer isn't eating your socks. The door seal is.",
+      "on_screen_text": "It's not the washer",
+      "first_frame": "Close-up of a sock slipping between the drum and the door seal.",
+      "bridge_line": "So I found socks that stay locked together."
+    }
+  ]
+}

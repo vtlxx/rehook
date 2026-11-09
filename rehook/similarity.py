@@ -15,8 +15,9 @@ ANALYZER = "char_wb"
 NGRAM_RANGE = (3, 5)
 STOP_WORDS = None
 # Поріг усередині зазору (0.20…0.53), ближче до дублів: краще пропустити
-# сумнівну перефразу, ніж викинути зайве (варіантів і так обмаль).
-DEFAULT_THRESHOLD = 0.45
+# сумнівну перефразу, ніж викинути зайве. На 0.45 відсіювалися вже просто
+# споріднені хуки ("dorm laundry day…" vs "dorm laundry ate my socks…" = 0.47).
+DEFAULT_THRESHOLD = 0.50
 
 
 def variant_text(item: dict) -> str:

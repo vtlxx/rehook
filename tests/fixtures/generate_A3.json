@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "confession",
+      "hook_vo": "My husband and I fight about socks more than money.",
+      "on_screen_text": "Our #1 fight: socks",
+      "first_frame": "Talking head: woman on the couch, partner shrugging behind her.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "Whose sock is this? Nobody in our house knows.",
+      "on_screen_text": "Nobody claims this sock",
+      "first_frame": "Talking head: man holding up a sock like evidence.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "contrast",
+      "hook_vo": "His socks, my socks, one washer, total chaos.",
+      "on_screen_text": "His, mine, chaos",
+      "first_frame": "Talking head: couple side by side, each holding a different sock.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "curiosity",
+      "hook_vo": "We found the one thing that ended our laundry argument.",
+      "on_screen_text": "The sock truce",
+      "first_frame": "Talking head: couple grinning in the laundry room.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "pov",
+      "hook_vo": "POV: your partner does the laundry and pairs nothing.",
+      "on_screen_text": "Paired: nothing",
+      "first_frame": "Talking head: woman reacting to a pile of unpaired socks.",
+      "bridge_line": ""
+    }
+  ]
+}

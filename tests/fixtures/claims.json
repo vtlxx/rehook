@@ -1,0 +1,154 @@
+{
+  "results": [
+    {
+      "key": "v1",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v2",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v3",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v4",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v5",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v6",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v7",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v8",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v9",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v10",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v11",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v12",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v13",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v14",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v15",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v16",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v17",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v18",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v19",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v20",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v21",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v22",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v23",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v24",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v25",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v26",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v27",
+      "claim_ok": false,
+      "claim_note": "'help my kids' circulation' is a health benefit, which the brief bans (medical or health benefits)."
+    },
+    {
+      "key": "v28",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v29",
+      "claim_ok": true,
+      "claim_note": ""
+    },
+    {
+      "key": "v30",
+      "claim_ok": true,
+      "claim_note": ""
+    }
+  ]
+}

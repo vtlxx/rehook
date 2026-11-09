@@ -1,0 +1,39 @@
+{
+  "variants": [
+    {
+      "hook_type": "number",
+      "hook_vo": "I added it up: four hours a year matching socks.",
+      "on_screen_text": "4 hours a year",
+      "first_frame": "Split screen: sock pile before, neat paired drawer after.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "contrast",
+      "hook_vo": "Left side: my laundry chaos. Right side: done in seconds.",
+      "on_screen_text": "Chaos vs done",
+      "first_frame": "Before/after split: tangled socks vs linked pairs.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "bold-statement",
+      "hook_vo": "Sock sorting ends today, and it costs $19.",
+      "on_screen_text": "Done sorting for $19",
+      "first_frame": "Before/after: socks piled on the bed, then five linked pairs.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "question",
+      "hook_vo": "What would you do with your Sunday back?",
+      "on_screen_text": "Your Sunday, back",
+      "first_frame": "Before: man buried in socks on the couch. After: same man out on a hike.",
+      "bridge_line": ""
+    },
+    {
+      "hook_type": "confession",
+      "hook_vo": "Confession: I used to leave socks unpaired for weeks.",
+      "on_screen_text": "Unpaired for weeks",
+      "first_frame": "Before: overflowing basket of loose socks. After: tidy paired socks in a drawer.",
+      "bridge_line": ""
+    }
+  ]
+}
