@@ -1,0 +1,6 @@
+WINNER_ID: 027
+[0-3s] VO: "My kid has never worn a matching pair. Not once."  ON-SCREEN: "Zero matching pairs"  VISUAL: toddler's feet in two different socks
+[3-8s] VO: "So we switched to socks that click together."  VISUAL: parent snapping two small socks together by the cuffs
+[8-15s] VO: "They go in the wash as a pair and come out as a pair."  VISUAL: laundry basket, every pair still attached
+[15-22s] VO: "5 pairs for $29, new ones every quarter as they grow."  ON-SCREEN: "5 pairs / $29"  VISUAL: kids' sock box opened on the floor
+[22-25s] VO: "Take the quick quiz to get the right sizes."  ON-SCREEN: "Take the quiz →"  VISUAL: phone with quiz screen

@@ -1,0 +1,20 @@
+product: SockLock magnetic socks
+offer: "5 pairs for $29, then a new delivery every quarter"
+price_rules:
+  - "$29"          # єдина допустима ціна в текстах
+facts:             # те, що можна стверджувати
+  - small magnet on the cuff keeps the pair together
+  - pairs stay together in the washer and dryer
+  - subscription, new delivery every quarter
+  - personalised offer after a short quiz
+banned_claims:     # не можна обіцяти
+  - "never lose a sock again guaranteed"
+  - medical or health benefits
+  - "free"
+  - "lifetime"
+banned_words: ["guaranteed", "miracle", "cure"]
+tone: "casual, relatable, a bit funny; no hype, no ALL CAPS"
+limits:
+  hook_vo_max_words: 12
+  on_screen_max_words: 7
+personas: [busy parents, college students, couples sharing laundry, people who hate folding]

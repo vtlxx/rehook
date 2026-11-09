@@ -1,0 +1,6 @@
+WINNER_ID: 031
+[0-3s] VO: "I spent 20 minutes every Sunday matching socks."  ON-SCREEN: "20 min of sock sorting?"  VISUAL: man surrounded by a pile of loose socks on the couch
+[3-8s] VO: "Now they come out of the dryer already paired."  VISUAL: hand pulling linked pairs out of the dryer
+[8-15s] VO: "A small magnet on the cuff keeps each pair together."  VISUAL: close-up of the cuff magnet clicking
+[15-22s] VO: "5 pairs for $29, with a new delivery every quarter."  ON-SCREEN: "5 pairs / $29"  VISUAL: neat drawer of paired socks
+[22-25s] VO: "Take the 30-second quiz for your personal offer."  ON-SCREEN: "Take the quiz →"  VISUAL: phone with quiz screen

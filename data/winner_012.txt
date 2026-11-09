@@ -1,0 +1,6 @@
+WINNER_ID: 012
+[0-3s] VO: "I used to lose a sock every single laundry day."  ON-SCREEN: "Where do my socks go?!"  VISUAL: woman holding one sock over open washer
+[3-8s] VO: "Then I found socks that literally lock together."  VISUAL: close-up of magnetic cuffs clicking
+[8-15s] VO: "Tiny magnet on the cuff keeps the pair together in the wash."  VISUAL: pair tumbling in washer, still attached
+[15-22s] VO: "5 pairs for $29, and a fresh drop every quarter."  ON-SCREEN: "5 pairs / $29"  VISUAL: box of five pairs on a bed
+[22-25s] VO: "Take the 30-second quiz to find your size."  ON-SCREEN: "Take the quiz →"  VISUAL: phone with quiz screen

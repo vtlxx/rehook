@@ -113,7 +113,8 @@ def write_report_csv(rows: list[dict], path: Path) -> None:
 def print_report(summary: dict, console: Console) -> None:
     table = Table(title="AI vs MAN modifications")
     for col in ("Group", "Angle", "Ads", "Scaled", "Share", "95% CI", "Spend", "CPA", "ROMI"):
-        table.add_column(col, justify="left" if col in ("Group", "Angle") else "right")
+        # no_wrap: назви кутів і інтервали не обрізаємо навіть у вузькому терміналі
+        table.add_column(col, justify="left" if col in ("Group", "Angle") else "right", no_wrap=True)
     for r in summary["rows"]:
         table.add_row(
             r["group"], r["angle_slug"], str(r["ads"]), str(r["scaled"]),
