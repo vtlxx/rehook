@@ -134,6 +134,7 @@ def run_report(args) -> None:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     write_report_csv(summary["rows"], out_dir / "report.csv")
-    console = Console()
+    # Таблиця широка: не даємо rich стискати її до 80 символів (напр. у пайпі чи CI)
+    console = Console(width=max(Console().width, 110))
     print_report(summary, console)
     console.print(f"Saved {out_dir / 'report.csv'}")
