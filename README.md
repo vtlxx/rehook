@@ -42,8 +42,8 @@ The page opens in your browser at http://localhost:8501. Keep the Terminal windo
 
 ### On the page
 
-1. **Winner script:** pick a sample, upload your `.txt` script, or paste its text. The script must start with a line like `WINNER_ID: 044`, followed by lines with timecodes (`[0-3s] VO: "…"`); see `examples/winner_044.txt`.
-2. **Brand brief:** pick the brief for the product.
+1. **Winner script:** pick a sample, upload your `.txt` script, or paste its text. The script must start with a line like `WINNER_ID: 044`, followed by lines with timecodes (`[0-3s] VO: "…"`); see `examples/scripts/winner_044.txt`.
+2. **Brand brief:** pick a brief from the list, or choose **Upload a file** and upload your own `.yaml` brief. To make one, copy `data/brand.yaml` and change the values (product, offer, the only allowed price, facts, banned claims and words, tone, word limits, personas); see `examples/scripts/brand_back_to_school.yaml`.
 3. Untick **Mock** (it is only a demo, and works only for winner 012). Leave it ticked if you just want to look around without a key.
 4. Optional: under **Launch history**, upload the hooks already launched for this winner and an Ads Manager export, so ReHook doesn't repeat them and numbers new ads correctly.
 5. Press **Generate** and wait about half a minute (one run costs about $0.15).
@@ -55,6 +55,7 @@ The page opens in your browser at http://localhost:8501. Keep the Terminal windo
 - *"ANTHROPIC_API_KEY is not set"*: do step 4 of the first-time setup, stop the page with `Ctrl+C` and start it again.
 - *"command not found: uv"*: close Terminal, open it again and retry; if it still fails, repeat step 1.
 - *"WINNER_ID line not found"*: add a `WINNER_ID: …` line at the top of the script.
+- *"missing keys […]"* or *"not valid YAML"* after uploading a brief: add the listed keys or fix the line the error points to; compare with `data/brand.yaml`.
 
 Ready-made files to try the page with are in [`examples/`](examples/README.md).
 
@@ -135,7 +136,7 @@ Real run for winner 012 (`claude-sonnet-5-5`, 10 calls, no retries or top-up): 3
 streamlit run app.py
 ```
 
-This opens `http://localhost:8501`. Under **Winner script** the designer chooses the source (a sample from `data/`, an uploaded `.txt` file, or pasted text), picks a brief and presses **Generate**. Mock mode has recorded replies only for winner 012; for any other script, untick Mock. Variants appear as cards grouped by angle, with a score and ⚠️ flags (price, banned words and claims, length). The designer ticks the variants they want, and **Download selected as CSV** returns `variants.csv` with only those; next to it are a button for `brief.md` and the list of dropped variants with reasons. Launch history (`launched.csv`, `ads_export.csv`) can be uploaded; otherwise the files in `data/` are used. Ready-made files for trying the page (a new winner, its launch history, a broken script, a holiday brief) and test scenarios are in [`examples/`](examples/README.md).
+This opens `http://localhost:8501`. Under **Winner script** the designer chooses the source (a sample from `data/`, an uploaded `.txt` file, or pasted text), picks a brief from `data/` or uploads their own `.yaml` brief, and presses **Generate**. Mock mode has recorded replies only for winner 012; for any other script, untick Mock. Variants appear as cards grouped by angle, with a score and ⚠️ flags (price, banned words and claims, length). The designer ticks the variants they want, and **Download selected as CSV** returns `variants.csv` with only those; next to it are a button for `brief.md` and the list of dropped variants with reasons. Launch history (`launched.csv`, `ads_export.csv`) can be uploaded; otherwise the files in `data/` are used. Ready-made files for trying the page (a new winner, its launch history, a broken script, briefs to upload) and test scenarios are in [`examples/`](examples/README.md).
 
 The core is the same as in the CLI: the page only calls `run_generate`. Without `ANTHROPIC_API_KEY` in the environment, mock mode is on (recorded replies for winner 012). To work with the real model, start the page with the key, for example from `.env`:
 

@@ -110,3 +110,16 @@ def test_mock_error_says_how_to_fix(app):
     app.selectbox(key="sample").select("winner_027.txt").run()
     at = generate(app)
     assert "Untick Mock" in at.error[0].value
+
+
+def test_brief_from_data_is_default(app):
+    assert app.radio(key="brief_source").value == "From data/"
+    assert app.selectbox(key="brief").value == "brand.yaml"
+
+
+def test_brief_upload_without_file_shows_error(app):
+    app.radio(key="brief_source").set_value("Upload a file").run()
+    assert "brief" not in [s.key for s in app.selectbox]             # the data/ list is hidden
+    at = generate(app)
+    assert not at.exception
+    assert "Upload a brand brief" in at.error[0].value

@@ -1,0 +1,21 @@
+# Test brief for the "Upload a file" option under Brand brief on the designer page.
+product: SockLock magnetic socks
+offer: "Back-to-school promo: 5 pairs for $24, then a new delivery every quarter"
+price_rules:
+  - "$24"          # the only price allowed in copy during the promo
+facts:             # what we may claim
+  - small magnet on the cuff keeps the pair together
+  - pairs stay together in the washer and dryer
+  - subscription, new delivery every quarter
+  - personalised offer after a short quiz
+banned_claims:     # what we must not promise
+  - "never lose a sock again guaranteed"
+  - medical or health benefits
+  - "free"
+  - "lifetime"
+banned_words: ["guaranteed", "miracle", "cure", "best ever"]
+tone: "upbeat, practical, a bit funny; speaks to parents getting kids ready for school; no hype, no ALL CAPS"
+limits:
+  hook_vo_max_words: 12
+  on_screen_max_words: 7
+personas: [busy parents, college students, couples sharing laundry, people who hate folding]

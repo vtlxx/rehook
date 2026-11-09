@@ -35,7 +35,7 @@ with left:
         text = (DATA / sample).read_text(encoding="utf-8")
         st.text_area("Preview", value=text, height=200, disabled=True, key=f"preview_{sample}")
     elif source == "Upload a file":
-        uploaded = st.file_uploader("Script (.txt) with a WINNER_ID line, e.g. examples/winner_044.txt", type="txt")
+        uploaded = st.file_uploader("Script (.txt) with a WINNER_ID line, e.g. examples/scripts/winner_044.txt", type="txt")
         if uploaded is not None:
             text = uploaded.getvalue().decode("utf-8")
             st.text_area("Preview", value=text, height=200, disabled=True, key=f"preview_{uploaded.name}")
@@ -43,7 +43,14 @@ with left:
         text = st.text_area("Paste the script", height=220, key="pasted",
                             placeholder='WINNER_ID: 044\n[0-3s] VO: "…"  ON-SCREEN: "…"  VISUAL: …\n[3-8s] VO: "…"')
 with right:
-    brief = st.selectbox("Brand brief", BRIEFS, key="brief")
+    brief_source = st.radio("Brand brief", ["From data/", "Upload a file"], horizontal=True, key="brief_source")
+    brief, brief_file = None, None
+    if brief_source == "From data/":
+        brief = st.selectbox("Brief", BRIEFS, key="brief")
+    else:
+        brief_file = st.file_uploader("Brief (.yaml), e.g. examples/scripts/brand_back_to_school.yaml", type=["yaml", "yml"])
+        st.caption("Required keys: product, offer, price_rules, facts, banned_claims, banned_words, tone, "
+                   "limits, personas. Template: data/brand.yaml.")
     n = st.number_input("Variants to keep", min_value=6, max_value=60, value=20, step=1, key="n")
     mock = st.checkbox("Mock: recorded model replies, no key needed (winner 012 only, 20 variants)",
                        value=not os.environ.get("ANTHROPIC_API_KEY"), key="mock")
@@ -65,6 +72,8 @@ def generate() -> None:
     if not text.strip():
         raise ValueError("Upload a .txt script first" if source == "Upload a file"
                          else "Paste the winner script first (it starts with a WINNER_ID line)")
+    if brief_source == "Upload a file" and brief_file is None:
+        raise ValueError("Upload a brand brief (.yaml) first")
     if not mock and not os.environ.get("ANTHROPIC_API_KEY"):
         raise LLMError("ANTHROPIC_API_KEY is not set: tick Mock, or restart the page with the key "
                        "(see README → Designer page)")
@@ -74,10 +83,15 @@ def generate() -> None:
         winner_path = folder / "winner.txt"
         winner_path.write_text(text, encoding="utf-8")
         started = time.monotonic()
-        result = run_generate(llm, str(winner_path), str(DATA / brief),
-                              _input_path(folder, "launched.csv", history_file, DATA / "launched.csv"),
-                              _input_path(folder, "ads_export.csv", ads_file, DATA / "ads_export.csv"),
-                              int(n), str(folder / "out"), DEFAULT_THRESHOLD, 42)
+        brief_path = (_input_path(folder, brief_file.name, brief_file, DATA) if brief_file
+                      else str(DATA / brief))
+        try:
+            result = run_generate(llm, str(winner_path), brief_path,
+                                  _input_path(folder, "launched.csv", history_file, DATA / "launched.csv"),
+                                  _input_path(folder, "ads_export.csv", ads_file, DATA / "ads_export.csv"),
+                                  int(n), str(folder / "out"), DEFAULT_THRESHOLD, 42)
+        except ValueError as e:  # errors about uploaded files: show the file name, not the temp folder
+            raise ValueError(str(e).replace(f"{folder}/", "")) from None
         result["brief_md"] = (folder / "out" / "brief.md").read_text(encoding="utf-8")
     result["cost"], result["elapsed"], result["mock"] = llm.cost(), time.monotonic() - started, mock
     st.session_state["result"] = result

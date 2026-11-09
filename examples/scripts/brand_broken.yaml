@@ -1,0 +1,5 @@
+# Deliberately incomplete brief: uploading it shows which keys are missing.
+product: SockLock magnetic socks
+offer: "5 pairs for $29"
+price_rules:
+  - "$29"

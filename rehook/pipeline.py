@@ -40,7 +40,12 @@ def _read_csv(path: str | None, columns: list[str]) -> list[dict]:
 
 def _read_brand(path: str) -> dict:
     with open(path, encoding="utf-8") as f:
-        brand = yaml.safe_load(f) or {}
+        try:
+            brand = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:  # a hand-edited brief: say which file and where it broke
+            raise ValueError(f"{path}: not valid YAML ({e})".replace("\n", " ")) from None
+    if not isinstance(brand, dict):
+        raise ValueError(f"{path}: expected keys like 'product: …', got a {type(brand).__name__}")
     missing = [k for k in BRAND_KEYS if k not in brand]
     if missing:
         raise ValueError(f"{path}: missing keys {missing}")

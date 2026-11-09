@@ -4,10 +4,11 @@ import re
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from rehook.__main__ import main
 from rehook.llm import LLM
-from rehook.pipeline import needs_topup, run_generate
+from rehook.pipeline import _read_brand, needs_topup, run_generate
 from rehook.rank import CRITERIA
 from rehook.similarity import DEFAULT_THRESHOLD, similarity_matrix, variant_text
 from tests.fakes import FakeClient, prompt_of
@@ -145,3 +146,17 @@ def test_brand_missing_key_names_the_file(capsys, tmp_path):
     assert main(args) == 1
     err = capsys.readouterr().err
     assert "brand.yaml" in err and "limits" in err
+
+
+def test_read_brand_broken_yaml_names_the_file(tmp_path):
+    path = tmp_path / "brand_x.yaml"
+    path.write_text('product: "unclosed\noffer: x\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="brand_x.yaml: not valid YAML"):
+        _read_brand(str(path))
+
+
+def test_read_brand_not_a_mapping(tmp_path):
+    path = tmp_path / "brand_x.yaml"
+    path.write_text("- product\n- offer\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="brand_x.yaml: expected keys"):
+        _read_brand(str(path))
