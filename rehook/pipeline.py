@@ -20,14 +20,31 @@ from rehook.select import select_top
 from rehook.similarity import filter_similar, variant_text
 
 MOCK_WINNER = "012"
+MOCK_VARIANTS_PER_ANGLE = 5  # фікстури записані для --n 20
 MIN_VARIANTS, MIN_ANGLES = 15, 5
+HISTORY_COLUMNS = ["ad_name", "hook_vo", "on_screen_text"]
+BRAND_KEYS = ["product", "offer", "price_rules", "facts", "banned_claims", "banned_words", "tone", "limits",
+              "personas"]
 
 
-def _read_csv(path: str | None) -> list[dict]:
+def _read_csv(path: str | None, columns: list[str]) -> list[dict]:
     if not path:
         return []
     with open(path, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        reader = csv.DictReader(f)
+        missing = [c for c in columns if c not in (reader.fieldnames or [])]
+        if missing:
+            raise ValueError(f"{path}: missing columns {missing}")
+        return list(reader)
+
+
+def _read_brand(path: str) -> dict:
+    with open(path, encoding="utf-8") as f:
+        brand = yaml.safe_load(f) or {}
+    missing = [k for k in BRAND_KEYS if k not in brand]
+    if missing:
+        raise ValueError(f"{path}: missing keys {missing}")
+    return brand
 
 
 def needs_topup(kept: list[dict], angles: list[dict], n: int) -> dict[str, int]:
@@ -77,9 +94,10 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
     winner = read_winner(winner_path)
     if llm.mock and winner["winner_id"] != MOCK_WINNER:
         raise ValueError(f"mock fixtures exist only for winner {MOCK_WINNER}")
-    with open(brand_path, encoding="utf-8") as f:
-        brand = yaml.safe_load(f)
-    history = _read_csv(history_path)
+    if llm.mock and variants_per_angle(n, NUM_ANGLES) != MOCK_VARIANTS_PER_ANGLE:
+        raise ValueError("mock fixtures exist only for --n 20 (5 variants per angle)")
+    brand = _read_brand(brand_path)
+    history = _read_csv(history_path, HISTORY_COLUMNS)
     ads = load_ads(ads_path) if ads_path else []
 
     # Кроки 1–3
@@ -98,6 +116,8 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
 
     # Один раунд догенерації для кутів, де після фільтра замало варіантів
     topup = needs_topup(kept, angles, n)
+    if topup and llm.mock:
+        raise ValueError("this mock run needs a top-up round, which has no fixtures; use the default --sim-threshold")
     if topup:
         short = [a for a in angles if a["angle_id"] in topup]
         with ThreadPoolExecutor(max_workers=len(short)) as pool:
@@ -112,7 +132,7 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
         kept, rejected = _filter(variants, history, sim_threshold)
 
     # Крок 8
-    selected, below, warnings = select_top(kept, n, NUM_ANGLES)
+    selected, below, warnings = select_top(kept, n, [a["angle_id"] for a in angles])
     rejected += below
     angles_used = len({v["angle_id"] for v in selected})
     if len(selected) < MIN_VARIANTS or angles_used < MIN_ANGLES:

@@ -80,3 +80,10 @@ def test_mock_missing_fixture(tmp_path, monkeypatch, prompt_x):
     monkeypatch.setattr(llm_mod, "FIXTURES_DIR", tmp_path)
     with pytest.raises(LLMError, match="no mock fixture"):
         LLM(mock=True).ask_json("s", "x", {}, need_key_a)
+
+
+def test_truncated_reply_gets_actionable_retry_hint(prompt_x):
+    client = FakeClient(['{"a": ', '{"a": 1}'], stop_reasons=["max_tokens", "end_turn"])
+    assert LLM(client=client).ask_json("s", "x", {}, need_key_a) == {"a": 1}
+    retry = client.calls[1]["messages"]
+    assert retry[1]["content"] == '{"a": ' and "cut off" in retry[2]["content"]

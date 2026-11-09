@@ -40,3 +40,10 @@ def test_parse_winner_calls_llm():
     llm = LLM(client=FakeClient([json.dumps(PARSED)]))
     out = parse_winner(llm, {"winner_id": "012", "text": "script", "body": ""}, {"product": "SockLock"})
     assert out == PARSED and "script" in llm.client.calls[0]["messages"][0]["content"]
+
+
+def test_validate_parsed_requires_timecode():
+    bad = json.loads(json.dumps(PARSED))
+    del bad["segments"][0]["timecode"]
+    with pytest.raises(ValueError, match="timecode"):
+        validate_parsed(bad)

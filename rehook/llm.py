@@ -73,8 +73,10 @@ class LLM:
             return self._from_fixture(step, fixture or step, validate)
 
         messages = [{"role": "user", "content": render_prompt(prompt_name, variables)}]
-        raw = self._call(step, messages)
+        raw, truncated = self._call(step, messages)
         try:
+            if truncated:
+                raise ValueError("the reply was cut off at max_tokens; reply with shorter, complete JSON")
             return self._check(raw, validate)
         except ValueError as first_error:
             # Один повтор: показуємо моделі її відповідь і текст помилки.
@@ -83,13 +85,14 @@ class LLM:
                 {"role": "user", "content": f"Your previous reply was invalid: {first_error}. "
                                             "Reply with the corrected JSON only."},
             ]
-            raw = self._call(step, messages)
+            raw, _ = self._call(step, messages)
             try:
                 return self._check(raw, validate)
             except ValueError as second_error:
                 raise LLMError(f"step {step}: invalid model reply after retry: {second_error}") from None
 
-    def _call(self, step: str, messages: list[dict]) -> str:
+    def _call(self, step: str, messages: list[dict]) -> tuple[str, bool]:
+        """Повертає (текст, чи обрізано по max_tokens)."""
         response = self.client.messages.create(
             model=self.model,
             max_tokens=MAX_TOKENS,
@@ -101,9 +104,7 @@ class LLM:
         if response.stop_reason == "refusal":
             raise LLMError(f"step {step}: the model refused to answer")
         text = "".join(block.text for block in response.content if block.type == "text")
-        if response.stop_reason == "max_tokens":
-            return ""  # обрізана відповідь — нехай спрацює повтор
-        return text
+        return text, response.stop_reason == "max_tokens"
 
     @staticmethod
     def _check(raw: str, validate: Callable[[dict], None]) -> dict:

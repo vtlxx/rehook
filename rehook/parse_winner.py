@@ -28,6 +28,8 @@ def validate_parsed(data: dict) -> None:
     for seg in segments:
         if seg.get("part") not in PARTS:
             raise ValueError(f"segment part must be one of {sorted(PARTS)}, got {seg.get('part')!r}")
+        if not str(seg.get("timecode", "")).strip():
+            raise ValueError("every segment needs a 'timecode'")
     angle = data.get("winning_angle")
     if not isinstance(angle, dict) or any(k not in angle for k in ANGLE_KEYS):
         raise ValueError(f"'winning_angle' must have keys {list(ANGLE_KEYS)}")

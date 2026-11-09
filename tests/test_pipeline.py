@@ -116,3 +116,32 @@ def test_topup_runs_one_round_for_short_angles(tmp_path):
     numbers = sorted(int(re.search(r"_H(\d+)_", v["variant_id"]).group(1))
                      for v in result["selected"] + result["rejected"])
     assert numbers == list(range(11, 11 + 35))
+
+
+def test_mock_with_other_n_fails_clearly(capsys, tmp_path):
+    assert main(ARGS + ["--n", "10", "--out", str(tmp_path)]) == 1
+    assert "--n 20" in capsys.readouterr().err
+
+
+def test_mock_forced_topup_fails_clearly(capsys, tmp_path):
+    assert main(ARGS + ["--sim-threshold", "0.2", "--out", str(tmp_path)]) == 1
+    assert "default --sim-threshold" in capsys.readouterr().err
+
+
+def test_history_with_wrong_columns_names_the_file(capsys, tmp_path):
+    bad = tmp_path / "hist.csv"
+    bad.write_text("name,text\nx,y\n")
+    args = ["generate", "--winner", "data/winner_012.txt", "--brand", "data/brand.yaml", "--history", str(bad),
+            "--mock", "--out", str(tmp_path)]
+    assert main(args) == 1
+    err = capsys.readouterr().err
+    assert "hist.csv" in err and "ad_name" in err
+
+
+def test_brand_missing_key_names_the_file(capsys, tmp_path):
+    brand = tmp_path / "brand.yaml"
+    brand.write_text("product: x\n")
+    args = ["generate", "--winner", "data/winner_012.txt", "--brand", str(brand), "--mock", "--out", str(tmp_path)]
+    assert main(args) == 1
+    err = capsys.readouterr().err
+    assert "brand.yaml" in err and "limits" in err

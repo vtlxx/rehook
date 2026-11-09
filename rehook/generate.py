@@ -59,7 +59,10 @@ def pick_examples(ads: list[dict], launched: list[dict], ltv: float = 68, underc
                 "romi": round(ad_romi(row, ltv, undercount), 2),
             })
     rated.sort(key=lambda r: r["romi"], reverse=True)
-    return {"best": rated[:top], "worst": rated[::-1][:top] if rated else []}
+    best = rated[:top]
+    # Якщо оголошень мало, той самий хук не має бути і «що працює», і «не повторюй».
+    worst = [r for r in rated[::-1][:top] if r not in best]
+    return {"best": best, "worst": worst}
 
 
 def next_hook_number(winner_id: str, names: list[str]) -> int:

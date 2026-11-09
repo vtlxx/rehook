@@ -3,18 +3,18 @@ import math
 from collections import Counter
 
 
-def select_top(variants: list[dict], n: int, num_angles: int) -> tuple[list[dict], list[dict], list[str]]:
+def select_top(variants: list[dict], n: int, angle_ids: list[str]) -> tuple[list[dict], list[dict], list[str]]:
     """Повертає (відібрані за спаданням оцінки, решта з reason=below_top_n, попередження).
 
     Правило: не менше 2 і не більше ceil(n / кути) + 1 варіантів на кут.
     Спершу беремо по 2 найкращі з кожного кута, потім добираємо за оцінкою.
     """
-    cap = math.ceil(n / num_angles) + 1
+    cap = math.ceil(n / len(angle_ids)) + 1
     ordered = sorted(variants, key=lambda v: v["score"], reverse=True)
 
     selected, per_angle, warnings = [], Counter(), []
-    angles = list(dict.fromkeys(v["angle_id"] for v in ordered))
-    for angle in sorted(angles):
+    # Ідемо за всіма запланованими кутами — і тими, де після фільтра нічого не лишилось.
+    for angle in angle_ids:
         best_two = [v for v in ordered if v["angle_id"] == angle][:2]
         selected += best_two
         per_angle[angle] = len(best_two)

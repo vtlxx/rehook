@@ -74,3 +74,11 @@ def test_generate_all_parallel_keeps_angle_order():
     llm = LLM(client=FakeClient([json.dumps(good(3))] * 2))
     out = generate_all(llm, angles_, dict(CONTEXT, angles=angles_), 3)
     assert [v["angle_id"] for v in out] == ["A1"] * 3 + ["A2"] * 3
+
+
+def test_pick_examples_best_and_worst_do_not_overlap():
+    ads = [{"ad_name": f"A{i}", "spend": 1000.0, "purchases": float(i)} for i in range(1, 7)]
+    launched = [{"ad_name": f"A{i}", "hook_vo": f"h{i}", "on_screen_text": ""} for i in range(1, 7)]
+    ex = pick_examples(ads, launched)
+    best = {e["ad_name"] for e in ex["best"]}
+    assert best.isdisjoint(e["ad_name"] for e in ex["worst"]) and [e["ad_name"] for e in ex["worst"]] == ["A1"]

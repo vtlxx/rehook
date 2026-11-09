@@ -11,7 +11,7 @@ MIN_FORMATS = 4  # перші кадри мають різнитися: Andromed
 
 
 def _dims(angle: dict) -> tuple:
-    return tuple(str(angle[d]).strip().lower() for d in DIMENSIONS)
+    return tuple(str(angle.get(d, "")).strip().lower() for d in DIMENSIONS)
 
 
 def validate_angles(data: dict, personas: list[str]) -> None:
@@ -19,6 +19,10 @@ def validate_angles(data: dict, personas: list[str]) -> None:
     if not isinstance(angles, list) or len(angles) != NUM_ANGLES:
         raise ValueError(f"need exactly {NUM_ANGLES} angles")
     for a in angles:
+        # Лише ValueError: інакше LLM.ask_json не зробить повтор із текстом помилки.
+        missing = [k for k in ("angle_id", "slug") + DIMENSIONS if not str(a.get(k, "")).strip()]
+        if missing:
+            raise ValueError(f"angle is missing fields: {missing}")
         if a.get("persona") not in personas:
             raise ValueError(f"persona must be one of {personas}, got {a.get('persona')!r}")
         if a.get("emotion") not in EMOTIONS:

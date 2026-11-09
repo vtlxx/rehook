@@ -38,7 +38,7 @@ python -m rehook generate --winner data/winner_012.txt --brand data/brand.yaml \
   --history data/launched.csv --ads data/ads_export.csv --mock
 ```
 
-Прапорці: `--n 20` (скільки варіантів лишити), `--out out/`, `--sim-threshold 0.5` (поріг схожості), `--seed 42` (перемішування під час оцінювання), `--model`. Mock-фікстури є лише для переможця 012.
+Прапорці: `--n 20` (скільки варіантів лишити), `--out out/`, `--sim-threshold 0.5` (поріг схожості), `--seed 42` (перемішування під час оцінювання), `--model`. Mock-фікстури записані лише для переможця 012 з `--n 20` і порогом схожості за замовчуванням.
 
 Результат у `out/`:
 - `variants.csv` — відібрані варіанти з ID для Ads Manager (`SL_W012_AI_H11_pain-lost-sock`), кутом, типом хука, оцінкою, схожістю та прапорцями;

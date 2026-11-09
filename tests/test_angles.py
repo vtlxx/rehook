@@ -41,3 +41,10 @@ def test_build_angles_uses_llm():
     brand = {"personas": PERSONAS, "product": "x", "tone": "t", "facts": [], "offer": "o"}
     result = build_angles(llm, brand, {"winning_angle": {}})
     assert len(result) == 6 and result[0]["angle_id"] == "A1"
+
+
+def test_missing_field_is_value_error_so_retry_happens():
+    data = angles()
+    del data["angles"][2]["pain"]
+    with pytest.raises(ValueError):
+        validate_angles(data, PERSONAS)
