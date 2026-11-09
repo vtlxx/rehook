@@ -24,6 +24,12 @@ def test_parse_json_strips_fences():
         parse_json("[1, 2]")
 
 
+def test_parse_json_fence_with_text_around():
+    # Модель іноді пише пояснення до або після блоку ```json.
+    assert parse_json('Here it is:\n```json\n{"a": 1}\n```\nNote: done.') == {"a": 1}
+    assert parse_json('```\n{"a": 1}\n```\n\nLet me know.') == {"a": 1}
+
+
 def test_render_prompt_replaces_placeholders(tmp_path, monkeypatch):
     monkeypatch.setattr(llm_mod, "PROMPTS_DIR", tmp_path)
     (tmp_path / "x.md").write_text("Brand: {{brand}}\nList: {{items}}")

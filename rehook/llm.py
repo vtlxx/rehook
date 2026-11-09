@@ -40,9 +40,9 @@ def render_prompt(name: str, variables: dict) -> str:
 
 
 def parse_json(text: str) -> dict:
-    """Знімає обгортку ```json ... ``` (модель іноді її додає) і парсить об'єкт."""
+    """Знімає обгортку ```json ... ``` (модель іноді її додає, разом з текстом довкола) і парсить об'єкт."""
     cleaned = text.strip()
-    fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", cleaned, re.DOTALL)
+    fence = re.search(r"```(?:json)?\s*(.*?)\s*```", cleaned, re.DOTALL)
     if fence:
         cleaned = fence.group(1)
     data = json.loads(cleaned)  # json.JSONDecodeError — підклас ValueError
