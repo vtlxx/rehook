@@ -1,4 +1,6 @@
 """Сторінка для дизайнерів (app.py): запускаємо її без браузера через Streamlit AppTest."""
+import re
+
 import pytest
 from streamlit.testing.v1 import AppTest
 
@@ -38,7 +40,7 @@ def test_mock_generate_shows_cards_by_angle_with_flags(app):
     assert len(at.subheader) == 6                      # картки згруповані за 6 кутами
     text = page_text(at)
     assert "price:$19" in text and "banned_claim:free" in text   # прапорці видно на картках
-    assert "Обрано 0 з 20" in text
+    assert "Selected 0 of 20" in text
 
 
 def test_ticked_cards_are_counted_for_download(app):
@@ -46,7 +48,7 @@ def test_ticked_cards_are_counted_for_download(app):
     picks(at)[0].check()
     picks(at)[3].check()
     at.run()
-    assert "Обрано 2 з 20" in page_text(at)
+    assert "Selected 2 of 20" in page_text(at)
     assert not at.exception
 
 
@@ -62,3 +64,12 @@ def test_mock_for_other_winner_shows_error(app):
     at = generate(app)
     assert not at.exception
     assert "012" in at.error[0].value
+
+
+def test_page_is_in_english(app):
+    at = generate(app)
+    texts = [e.value for group in (at.title, at.subheader, at.markdown, at.caption) for e in group]
+    texts += [e.label for group in (at.button, at.checkbox, at.selectbox, at.text_area, at.number_input,
+                                     at.metric, at.expander) for e in group]
+    cyrillic = [t for t in texts if re.search("[А-Яа-яЇїІіЄєҐґ]", t)]
+    assert cyrillic == []

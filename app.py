@@ -20,29 +20,29 @@ SAMPLES = sorted(p.name for p in DATA.glob("winner_*.txt"))
 BRIEFS = sorted(p.name for p in DATA.glob("*.yaml"))
 
 st.set_page_config(page_title="rehook", page_icon="🧦", layout="wide")
-st.title("rehook — нові хуки до ролика-переможця")
-st.caption("Змінюються лише перші 3 секунди; решта скрипту лишається як у переможця.")
+st.title("rehook — new hooks for a winning ad")
+st.caption("Only the first 3 seconds change; the rest of the script stays as in the winner.")
 
 # ── Введення ────────────────────────────────────────────────────────────────
 left, right = st.columns([3, 2])
 with left:
-    sample = st.selectbox("Приклад скрипту з data/", SAMPLES, key="sample")
-    uploaded = st.file_uploader("…або завантажте свій скрипт (.txt)", type="txt")
+    sample = st.selectbox("Sample script from data/", SAMPLES, key="sample")
+    uploaded = st.file_uploader("…or upload your own script (.txt)", type="txt")
     # key залежить від прикладу: при виборі іншого прикладу текст оновлюється
-    text = st.text_area("Скрипт переможця (можна редагувати або вставити свій)",
+    text = st.text_area("Winner script (edit it or paste your own)",
                         value=(DATA / sample).read_text(encoding="utf-8"), height=220, key=f"text_{sample}")
     if uploaded is not None:
         text = uploaded.getvalue().decode("utf-8")
-        st.caption(f"Використовується завантажений файл: {uploaded.name}")
+        st.caption(f"Using the uploaded file: {uploaded.name}")
 with right:
-    brief = st.selectbox("Бриф бренду", BRIEFS, key="brief")
-    n = st.number_input("Скільки варіантів лишити", min_value=6, max_value=60, value=20, step=1, key="n")
-    mock = st.checkbox("Mock: записані відповіді моделі, без ключа (лише переможець 012, 20 варіантів)",
+    brief = st.selectbox("Brand brief", BRIEFS, key="brief")
+    n = st.number_input("Variants to keep", min_value=6, max_value=60, value=20, step=1, key="n")
+    mock = st.checkbox("Mock: recorded model replies, no key needed (winner 012 only, 20 variants)",
                        value=not os.environ.get("ANTHROPIC_API_KEY"), key="mock")
-    with st.expander("Історія запусків (необов'язково)"):
-        history_file = st.file_uploader("Запущені хуки (launched.csv)", type="csv")
-        ads_file = st.file_uploader("Вигрузка з Ads Manager (ads_export.csv)", type="csv")
-        st.caption("Без завантаження беруться data/launched.csv і data/ads_export.csv.")
+    with st.expander("Launch history (optional)"):
+        history_file = st.file_uploader("Launched hooks (launched.csv)", type="csv")
+        ads_file = st.file_uploader("Ads Manager export (ads_export.csv)", type="csv")
+        st.caption("If nothing is uploaded, data/launched.csv and data/ads_export.csv are used.")
 
 
 def _input_path(folder: Path, name: str, upload, default: Path) -> str:
@@ -55,7 +55,7 @@ def _input_path(folder: Path, name: str, upload, default: Path) -> str:
 
 def generate() -> None:
     if not mock and not os.environ.get("ANTHROPIC_API_KEY"):
-        raise LLMError("ANTHROPIC_API_KEY не задано: увімкніть mock або запустіть сторінку з ключем")
+        raise LLMError("ANTHROPIC_API_KEY is not set: turn on mock or start the page with the key")
     llm = LLM(mock=mock)
     with tempfile.TemporaryDirectory() as tmp:
         folder = Path(tmp)
@@ -73,42 +73,42 @@ def generate() -> None:
         del st.session_state[key]  # нова генерація — старі галочки не потрібні
 
 
-if st.button("Згенерувати", type="primary", key="generate"):
+if st.button("Generate", type="primary", key="generate"):
     st.session_state.pop("result", None)
     try:
-        with st.spinner("Розбираю переможця, будую кути, генерую й перевіряю варіанти…"):
+        with st.spinner("Breaking down the winner, building angles, generating and checking variants…"):
             generate()
     except (LLMError, ValueError, KeyError, OSError, anthropic.APIError) as e:
-        st.error(f"Помилка: {e}")
+        st.error(f"Error: {e}")
 
 # ── Результат ───────────────────────────────────────────────────────────────
 result = st.session_state.get("result")
 if result:
     selected, rejected = result["selected"], result["rejected"]
     cols = st.columns(4)
-    cols[0].metric("Згенеровано", result["generated"])
-    cols[1].metric("Відсіяно", len(rejected))
-    cols[2].metric("Відібрано", len(selected))
-    cols[3].metric("Кутів", len({v["angle_id"] for v in selected}))
-    st.caption(f"Вартість ${result['cost']:.3f} · час {result['elapsed']:.0f} с"
-               + (" · mock: відповіді моделі записані заздалегідь, API не викликався" if result["mock"] else ""))
+    cols[0].metric("Generated", result["generated"])
+    cols[1].metric("Dropped", len(rejected))
+    cols[2].metric("Selected", len(selected))
+    cols[3].metric("Angles", len({v["angle_id"] for v in selected}))
+    st.caption(f"Cost ${result['cost']:.3f} · time {result['elapsed']:.0f} s"
+               + (" · mock: model replies were recorded in advance, no API calls" if result["mock"] else ""))
     for warning in result["warnings"]:
         st.warning(warning)
 
     wa = result["parsed"]["winning_angle"]
-    with st.expander("Чому переможець спрацював"):
-        st.markdown(f"**Біль:** {wa['pain']}  \n**Персона:** {wa['persona']}  \n"
-                    f"**Емоція:** {wa['emotion']}  \n**Чому:** {wa['why']}")
+    with st.expander("Why the winner works"):
+        st.markdown(f"**Pain:** {wa['pain']}  \n**Persona:** {wa['persona']}  \n"
+                    f"**Emotion:** {wa['emotion']}  \n**Why:** {wa['why']}")
 
-    st.markdown("Позначте варіанти, які берете в роботу. Оцінка — лише порядок, не прогноз: вирішує тест.")
+    st.markdown("Tick the variants you will work on. The score is only an ordering, not a forecast: the test decides.")
     for angle in result["angles"]:
         items = [v for v in selected if v["angle_id"] == angle["angle_id"]]
         if not items:
             continue
-        kind = "безпечний" if angle.get("is_safe") else "сміливий"
+        kind = "safe" if angle.get("is_safe") else "bold"
         st.subheader(f"{angle['angle_id']} · {angle['slug']} ({kind})")
-        st.caption(f"Біль: {angle['pain']} · Персона: {angle['persona']} · Емоція: {angle['emotion']} · "
-                   f"Перший кадр: {angle['frame_format']}")
+        st.caption(f"Pain: {angle['pain']} · Persona: {angle['persona']} · Emotion: {angle['emotion']} · "
+                   f"First frame: {angle['frame_format']}")
         grid = st.columns(3)
         for i, v in enumerate(items):
             with grid[i % 3].container(border=True):
@@ -121,13 +121,13 @@ if result:
 
     chosen = [v for v in selected if st.session_state.get(f"pick_{v['variant_id']}")]
     st.divider()
-    st.markdown(f"**Обрано {len(chosen)} з {len(selected)}**")
+    st.markdown(f"**Selected {len(chosen)} of {len(selected)}**")
     winner_id = result["winner"]["winner_id"]
     down = st.columns(2)
-    down[0].download_button("Завантажити CSV обраних", variants_csv_text(chosen), type="primary",
+    down[0].download_button("Download selected as CSV", variants_csv_text(chosen), type="primary",
                             file_name=f"variants_W{winner_id}_selected.csv", mime="text/csv", disabled=not chosen)
-    down[1].download_button("Завантажити brief.md (усі відібрані)", result["brief_md"],
+    down[1].download_button("Download brief.md (all selected variants)", result["brief_md"],
                             file_name=f"brief_W{winner_id}.md", mime="text/markdown")
-    with st.expander(f"Відсіяні варіанти ({len(rejected)})"):
+    with st.expander(f"Dropped variants ({len(rejected)})"):
         st.dataframe([{k: r.get(k, "") for k in ("variant_id", "hook_vo", "score", "reason")} for r in rejected],
                      hide_index=True, use_container_width=True)
