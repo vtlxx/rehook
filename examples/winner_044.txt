@@ -1,0 +1,6 @@
+WINNER_ID: 044
+[0-3s] VO: "I packed six pairs for vacation and came home with four odd socks."  ON-SCREEN: "Packed 6 pairs. Came back with 4 singles."  VISUAL: open suitcase with mismatched socks spilling out
+[3-8s] VO: "Now every pair clicks together before it goes in the bag."  VISUAL: hands snapping two socks together by the cuffs, dropping them into a suitcase
+[8-15s] VO: "A small magnet on the cuff keeps the pair together, even in the hotel washer."  VISUAL: close-up of the cuff magnet, then a pair tumbling in a washer
+[15-22s] VO: "5 pairs for $29, and a new delivery every quarter."  ON-SCREEN: "5 pairs / $29"  VISUAL: neatly packed suitcase with linked pairs
+[22-25s] VO: "Take the 30-second quiz to get your offer."  ON-SCREEN: "Take the quiz →"  VISUAL: phone with quiz screen
