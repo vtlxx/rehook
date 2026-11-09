@@ -1,10 +1,10 @@
-"""Генерує синтетичне вивантаження з Ads Manager: data/ads_export.csv.
+"""Generates a synthetic Ads Manager export: data/ads_export.csv.
 
-Орієнтири з ТЗ: CPM ~$12, CTR ~1.2%, CPA ~$50. Більшість оголошень з малим
-spend (їх вимкнули), кілька переможців з великим. Частка «дійшли до
-масштабування» ~10% (реальний hit rate у Meta ~5%, але в демо має бути що показати).
+Reference points from the brief: CPM ~$12, CTR ~1.2%, CPA ~$50. Most ads have small
+spend (they were turned off), a few winners have large spend. The share that "reached
+scaling" is ~10% (the real hit rate on Meta is ~5%, but the demo needs something to show).
 
-Запуск: python scripts/make_ads_export.py (seed фіксований — результат відтворюваний).
+Run: python scripts/make_ads_export.py (the seed is fixed, so the result is reproducible).
 """
 import csv
 import random
@@ -15,7 +15,7 @@ LTV = 68
 UNDERCOUNT = 0.12
 SLUGS = ["pain-lost-sock", "pain-odd-socks", "pain-sorting-time", "persona-parents",
          "persona-students", "emotion-humor", "frame-pov", "frame-before-after"]
-# Додаткові оголошення — від старих переможців, щоб не зачепити нумерацію W012.
+# Extra ads come from older winners, so they do not affect W012 numbering.
 EXTRA_WINNERS = ["005", "019", "022"]
 
 
@@ -31,7 +31,7 @@ def make_names(launched: list[str], group: str, total: int) -> list[str]:
 
 def plan_spend_and_romi(rng: random.Random, names: list[str], launched: set[str],
                         big_count: int, scaled_count: int) -> dict[str, tuple[float, float]]:
-    """Кілька запущених оголошень отримують великий spend, з них частина — переможці."""
+    """Some launched ads get large spend; part of them become winners."""
     candidates = [n for n in names if n in launched]
     rng.shuffle(candidates)
     big = candidates[:big_count]
@@ -59,7 +59,7 @@ def main() -> None:
         plan = plan_spend_and_romi(rng, names, launched_set, big_count, scaled_count=4)
         for name in names:
             spend, romi = plan[name]
-            # Покупки, які побачила Meta: ROMI = покупки/(1-недооблік) * LTV / spend.
+            # Purchases Meta saw: ROMI = purchases/(1-undercount) * LTV / spend.
             purchases = round(romi * spend / LTV * (1 - UNDERCOUNT))
             impressions = round(spend / 12 * 1000 * rng.uniform(0.85, 1.15))
             clicks = round(impressions * rng.uniform(0.010, 0.014))

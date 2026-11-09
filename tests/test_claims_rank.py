@@ -28,7 +28,7 @@ def test_check_claims_maps_by_key():
     check_claims(llm, items, BRAND)
     assert items[1]["claim_ok"] is False and "circulation" in items[1]["claim_note"]
     assert items[0]["claim_ok"] is True
-    assert "ID1" not in prompt_of(llm.client.calls[0])      # моделі йдуть лише ключі й тексти
+    assert "ID1" not in prompt_of(llm.client.calls[0])      # the model gets only keys and texts
 
 
 def test_validate_claims_missing_key():

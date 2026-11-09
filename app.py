@@ -1,6 +1,6 @@
-"""Сторінка для дизайнерів: `streamlit run app.py`.
+"""Designer page: `streamlit run app.py`.
 
-Ядро те саме, що й у CLI (run_generate); тут лише введення, картки й вибір.
+Same core as the CLI (run_generate); this file only handles input, cards and selection.
 """
 import os
 import tempfile
@@ -23,10 +23,10 @@ st.set_page_config(page_title="rehook", page_icon="🧦", layout="wide")
 st.title("rehook — new hooks for a winning ad")
 st.caption("Only the first 3 seconds change; the rest of the script stays as in the winner.")
 
-# ── Введення ────────────────────────────────────────────────────────────────
+# ── Input ───────────────────────────────────────────────────────────────────
 left, right = st.columns([3, 2])
 with left:
-    # Явний вибір джерела: показуємо лише одне поле, щоб було видно, який скрипт піде в роботу.
+    # Explicit source choice: show only one field, so it is clear which script will be used.
     source = st.radio("Winner script", ["Sample from data/", "Upload a file", "Paste text"],
                       horizontal=True, key="source")
     text = ""
@@ -82,7 +82,7 @@ def generate() -> None:
     result["cost"], result["elapsed"], result["mock"] = llm.cost(), time.monotonic() - started, mock
     st.session_state["result"] = result
     for key in [k for k in st.session_state if str(k).startswith("pick_")]:
-        del st.session_state[key]  # нова генерація — старі галочки не потрібні
+        del st.session_state[key]  # new generation: old ticks no longer apply
 
 
 if st.button("Generate", type="primary", key="generate"):
@@ -94,7 +94,7 @@ if st.button("Generate", type="primary", key="generate"):
         hint = " Untick Mock to run the real model on this script." if mock and "mock" in str(e).lower() else ""
         st.error(f"Error: {e}.{hint}" if hint else f"Error: {e}")
 
-# ── Результат ───────────────────────────────────────────────────────────────
+# ── Result ──────────────────────────────────────────────────────────────────
 result = st.session_state.get("result")
 if result:
     selected, rejected = result["selected"], result["rejected"]

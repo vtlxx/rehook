@@ -25,7 +25,7 @@ def test_parse_json_strips_fences():
 
 
 def test_parse_json_fence_with_text_around():
-    # Модель іноді пише пояснення до або після блоку ```json.
+    # The model sometimes writes an explanation before or after the ```json block.
     assert parse_json('Here it is:\n```json\n{"a": 1}\n```\nNote: done.') == {"a": 1}
     assert parse_json('```\n{"a": 1}\n```\n\nLet me know.') == {"a": 1}
 

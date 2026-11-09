@@ -2,12 +2,12 @@ product: SockLock magnetic socks
 offer: "Holiday promo: 5 pairs for $25, then a new delivery every quarter"
 price_rules:
   - "$25"          # holiday promo: the only allowed price
-facts:             # те, що можна стверджувати
+facts:             # what we may claim
   - small magnet on the cuff keeps the pair together
   - pairs stay together in the washer and dryer
   - subscription, new delivery every quarter
   - personalised offer after a short quiz
-banned_claims:     # не можна обіцяти
+banned_claims:     # what we must not promise
   - "never lose a sock again guaranteed"
   - medical or health benefits
   - "free"

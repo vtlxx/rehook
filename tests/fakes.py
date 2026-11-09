@@ -1,4 +1,4 @@
-"""Фейковий клієнт Anthropic для тестів: відповідає заздалегідь заданим текстом."""
+"""Fake Anthropic client for tests: replies with preset text."""
 import threading
 from types import SimpleNamespace
 
@@ -22,7 +22,7 @@ class _Messages:
 
 
 class FakeClient:
-    """replies: список (видається по черзі) або функція kwargs -> текст (для паралельних викликів)."""
+    """replies: a list (served in order) or a function kwargs -> text (for parallel calls)."""
 
     def __init__(self, replies, stop_reasons=None):
         self.replies = replies
@@ -33,5 +33,5 @@ class FakeClient:
 
 
 def prompt_of(kwargs) -> str:
-    """Текст першого повідомлення користувача у виклику."""
+    """Text of the first user message in the call."""
     return kwargs["messages"][0]["content"]

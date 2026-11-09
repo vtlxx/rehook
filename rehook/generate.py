@@ -1,8 +1,8 @@
-"""Крок 3: генерація варіантів хука — один виклик моделі на кут, усі кути паралельно.
+"""Step 3: hook variant generation: one model call per angle, all angles in parallel.
 
-Чому не один виклик на все: 30 варіантів в одній відповіді — це 40–60 с і
-повтор усього при збої. Усередині кута модель бачить свої варіанти разом,
-тож сама уникає повторів; між кутами різницю задає сам кут.
+Why not one call for everything: 30 variants in one reply take 40–60 s, and a
+failure means redoing all of it. Within an angle the model sees its variants together,
+so it avoids repeats itself; across angles, the angle itself sets the difference.
 """
 import math
 from collections import Counter
@@ -17,7 +17,7 @@ ANGLE_FIELDS = ("angle_id", "pain", "persona", "emotion", "frame_format")
 
 
 def variants_per_angle(n: int, num_angles: int = 6) -> int:
-    """Генеруємо із запасом ×1.5: частина відсіється на перевірках."""
+    """Generate with a 1.5× margin: some variants are dropped by the checks."""
     return math.ceil(1.5 * n / num_angles)
 
 
@@ -33,7 +33,7 @@ def validate_variants(data: dict, k: int) -> None:
             raise ValueError("'bridge_line' must be a string (empty if not needed)")
         if v["hook_type"] not in HOOK_TYPES:
             raise ValueError(f"hook_type must be one of {HOOK_TYPES}, got {v['hook_type']!r}")
-    # Різні типи хуків усередині кута — щоб не вийшло 5 перефразувань однієї думки.
+    # Different hook types within an angle, so we do not get 5 rephrasings of one idea.
     max_same = math.ceil(k / len(HOOK_TYPES))
     repeated = [t for t, c in Counter(v["hook_type"] for v in variants).items() if c > max_same]
     if repeated:
@@ -42,9 +42,9 @@ def validate_variants(data: dict, k: int) -> None:
 
 def pick_examples(ads: list[dict], launched: list[dict], ltv: float = 68, undercount: float = 0.12,
                   min_spend: float = 500, top: int = 5) -> dict:
-    """Найкращі й найгірші хуки за ROMI — приклади для моделі.
+    """Best and worst hooks by ROMI: examples for the model.
 
-    Лише оголошення зі spend ≥ min_spend: на малих сумах ROMI — це шум.
+    Only ads with spend ≥ min_spend: at small amounts ROMI is noise.
     """
     texts = {row["ad_name"]: row for row in launched}
     rated = []
@@ -60,20 +60,20 @@ def pick_examples(ads: list[dict], launched: list[dict], ltv: float = 68, underc
             })
     rated.sort(key=lambda r: r["romi"], reverse=True)
     best = rated[:top]
-    # Якщо оголошень мало, той самий хук не має бути і «що працює», і «не повторюй».
+    # With few ads, the same hook must not be both "what works" and "do not repeat".
     worst = [r for r in rated[::-1][:top] if r not in best]
     return {"best": best, "worst": worst}
 
 
 def next_hook_number(winner_id: str, names: list[str]) -> int:
-    """Продовжуємо нумерацію AI-хуків цього переможця, щоб не збігтися із запущеними."""
+    """Continue this winner's AI hook numbering so it does not collide with launched ads."""
     numbers = [p["nn"] for p in map(parse_ad_name, names)
                if p and p["group"] == "AI" and p["winner_id"] == winner_id]
     return max(numbers, default=0) + 1
 
 
 def assign_ids(variants: list[dict], winner_id: str, start_nn: int, start_key: int) -> None:
-    """ID для Ads Manager (SL_W012_AI_H11_slug) і короткий ключ v1… для кроків 5 і 7."""
+    """Ads Manager ID (SL_W012_AI_H11_slug) and a short key v1… for steps 5 and 7."""
     for offset, variant in enumerate(variants):
         variant["variant_id"] = f"SL_W{winner_id}_AI_H{start_nn + offset:02d}_{variant['angle_slug']}"
         variant["key"] = f"v{start_key + offset}"
@@ -116,7 +116,7 @@ def generate_for_angle(llm: LLM, angle: dict, context: dict, k: int, avoid: list
 
 
 def generate_all(llm: LLM, angles: list[dict], context: dict, k: int) -> list[dict]:
-    """Паралельні виклики (по потоку на кут); порядок результату = порядок кутів."""
+    """Parallel calls (one thread per angle); result order = angle order."""
     with ThreadPoolExecutor(max_workers=len(angles)) as pool:
         batches = list(pool.map(lambda a: generate_for_angle(llm, a, context, k), angles))
     return [v for batch in batches for v in batch]

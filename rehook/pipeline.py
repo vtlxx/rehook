@@ -1,4 +1,4 @@
-"""Конвеєр generate: склеює кроки 1–8 в одну функцію."""
+"""The generate pipeline: glues steps 1–8 into one function."""
 import csv
 import math
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +20,7 @@ from rehook.select import select_top
 from rehook.similarity import filter_similar, variant_text
 
 MOCK_WINNER = "012"
-MOCK_VARIANTS_PER_ANGLE = 5  # фікстури записані для --n 20
+MOCK_VARIANTS_PER_ANGLE = 5  # fixtures were recorded for --n 20
 MIN_VARIANTS, MIN_ANGLES = 15, 5
 HISTORY_COLUMNS = ["ad_name", "hook_vo", "on_screen_text"]
 BRAND_KEYS = ["product", "offer", "price_rules", "facts", "banned_claims", "banned_words", "tone", "limits",
@@ -48,9 +48,9 @@ def _read_brand(path: str) -> dict:
 
 
 def needs_topup(kept: list[dict], angles: list[dict], n: int) -> dict[str, int]:
-    """Які кути добрати і скільки: якщо всього менше n або в якомусь куті < 2.
+    """Which angles to top up and by how much: if the total is below n or some angle has < 2.
 
-    Добираємо лише кути, де лишилось менше ceil(n/6), — дефіцит + 2 про запас.
+    Only angles left with fewer than ceil(n/6) are topped up: the deficit + 2 as a margin.
     """
     per_angle = {a["angle_id"]: 0 for a in angles}
     for v in kept:
@@ -62,7 +62,7 @@ def needs_topup(kept: list[dict], angles: list[dict], n: int) -> dict[str, int]:
 
 
 def _check_and_score(llm: LLM, variants: list[dict], brand: dict, examples: dict, seed: int) -> None:
-    """Кроки 4, 5 і 7. Обіцянки й оцінка — два незалежні виклики, тож паралельно."""
+    """Steps 4, 5 and 7. Claims and scoring are two independent calls, so they run in parallel."""
     apply_rules(variants, brand)
     with ThreadPoolExecutor(max_workers=2) as pool:
         claims = pool.submit(check_claims, llm, variants, brand)
@@ -72,14 +72,14 @@ def _check_and_score(llm: LLM, variants: list[dict], brand: dict, examples: dict
 
 
 def _filter(variants: list[dict], history: list[dict], threshold: float) -> tuple[list[dict], list[dict]]:
-    for v in variants:  # фільтр можна запускати повторно (після догенерації)
+    for v in variants:  # the filter can run again (after a top-up)
         v.pop("reason", None)
         v.pop("max_similarity", None)
     return filter_similar(variants, history, threshold)
 
 
 def _avoid_texts(angle_id: str, variants: list[dict], history: list[dict]) -> list[str]:
-    """Що модель не має повторювати: усі варіанти кута + запущені хуки, на які вони були схожі."""
+    """What the model must not repeat: all variants of the angle + launched hooks they were similar to."""
     texts = [variant_text(v) for v in variants if v["angle_id"] == angle_id]
     launched = {h["ad_name"]: h for h in history}
     for v in variants:
@@ -100,7 +100,7 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
     history = _read_csv(history_path, HISTORY_COLUMNS)
     ads = load_ads(ads_path) if ads_path else []
 
-    # Кроки 1–3
+    # Steps 1–3
     parsed = parse_winner(llm, winner, brand)
     angles = build_angles(llm, brand, parsed)
     examples = pick_examples(ads, history)
@@ -110,11 +110,11 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
     start_nn = next_hook_number(winner["winner_id"], [r["ad_name"] for r in history + ads])
     assign_ids(variants, winner["winner_id"], start_nn, 1)
 
-    # Кроки 4, 5, 7, потім 6
+    # Steps 4, 5, 7, then 6
     _check_and_score(llm, variants, brand, examples, seed)
     kept, rejected = _filter(variants, history, sim_threshold)
 
-    # Один раунд догенерації для кутів, де після фільтра замало варіантів
+    # One top-up round for angles left with too few variants after the filter
     topup = needs_topup(kept, angles, n)
     if topup and llm.mock:
         raise ValueError("this mock run needs a top-up round, which has no fixtures; use the default --sim-threshold")
@@ -131,7 +131,7 @@ def run_generate(llm: LLM, winner_path: str, brand_path: str, history_path: str 
         variants += new
         kept, rejected = _filter(variants, history, sim_threshold)
 
-    # Крок 8
+    # Step 8
     selected, below, warnings = select_top(kept, n, [a["angle_id"] for a in angles])
     rejected += below
     angles_used = len({v["angle_id"] for v in selected})

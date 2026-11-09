@@ -1,25 +1,25 @@
-"""Крок 4: перевірки кодом, без LLM.
+"""Step 4: code checks, no LLM.
 
-Варіанти з прапорцями не видаляються — прапорці лише підказують дизайнеру,
-на що звернути увагу.
+Flagged variants are not removed: flags only tell the designer
+what to look at.
 """
 import re
 
-# Ціна: знак долара і число, напр. "$19", "$ 29", "$29.00".
+# Price: a dollar sign and a number, e.g. "$19", "$ 29", "$29.00".
 PRICE_RE = re.compile(r"\$\s?(\d+(?:[.,]\d+)?)")
-# Два і більше слова поспіль великими літерами (кожне з 2+ літер).
+# Two or more words in a row in capitals (each with 2+ letters).
 CAPS_RE = re.compile(r"\b[A-Z]{2,}(?:\s+[A-Z]{2,})+\b")
 
 
 def count_words(text: str) -> int:
-    """Слово — токен, у якому є хоча б одна літера або цифра ("/" не рахується)."""
+    """A word is a token with at least one letter or digit ("/" does not count)."""
     return sum(1 for token in text.split() if re.search(r"[A-Za-z0-9]", token))
 
 
 def word_pattern(word: str) -> re.Pattern:
-    """Ціле слово без урахування регістру + прості закінчення (s/es/d/ed).
+    """Whole word, case-insensitive, + simple endings (s/es/d/ed).
 
-    Так "cure" ловить "cures", але не "secure".
+    So "cure" catches "cures" but not "secure".
     """
     return re.compile(rf"\b{re.escape(word)}(?:s|es|d|ed)?\b", re.IGNORECASE)
 
@@ -29,15 +29,15 @@ def _to_number(text: str) -> float:
 
 
 def _short_claims(brand: dict) -> list[str]:
-    """Короткі заборонені обіцянки (1–2 слова, напр. "free") перевіряємо кодом.
+    """Short banned claims (1–2 words, e.g. "free") are checked by code.
 
-    Довгі описові ("medical or health benefits") — лише моделлю на кроці 5.
+    Long descriptive ones ("medical or health benefits") only by the model in step 5.
     """
     return [claim for claim in brand.get("banned_claims", []) if len(claim.split()) <= 2]
 
 
 def check_variant(variant: dict, brand: dict) -> list[str]:
-    """Повертає список прапорців варіанта без дублів, у порядку виявлення."""
+    """Returns the variant's flags without duplicates, in the order found."""
     flags = []
     limits = brand["limits"]
 
@@ -63,10 +63,10 @@ def check_variant(variant: dict, brand: dict) -> list[str]:
         for match in CAPS_RE.finditer(text):
             flags.append(f"caps:{match.group(0)}")
 
-    return list(dict.fromkeys(flags))  # прибрати дублі, зберігши порядок
+    return list(dict.fromkeys(flags))  # drop duplicates, keep order
 
 
 def apply_rules(variants: list[dict], brand: dict) -> None:
-    """Записує прапорці в поле rule_flags кожного варіанта."""
+    """Writes the flags into each variant's rule_flags field."""
     for variant in variants:
         variant["rule_flags"] = check_variant(variant, brand)

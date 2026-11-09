@@ -1,13 +1,13 @@
-"""Крок 5: перевірка обіцянок моделлю — чи є твердження поза фактами брифу або під забороною.
+"""Step 5: claim check by the model: any statement beyond the brief's facts or among banned claims.
 
-Короткі заборонені слова ("free", "lifetime") додатково ловить код (rules.py):
-пропущена заборонена обіцянка коштує дорожче за зайвий прапорець.
+Short banned words ("free", "lifetime") are also caught by code (rules.py):
+a missed banned claim costs more than an extra flag.
 """
 from rehook.llm import LLM
 
 
 def model_view(variants: list[dict]) -> list[dict]:
-    """Моделі передаємо лише короткий ключ і тексти — менше токенів, без прив'язки до нумерації."""
+    """The model gets only a short key and the texts: fewer tokens, no dependence on numbering."""
     return [{"key": v["key"], "hook_vo": v["hook_vo"], "on_screen_text": v["on_screen_text"],
              "bridge_line": v.get("bridge_line", "")} for v in variants]
 

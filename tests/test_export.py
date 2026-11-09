@@ -24,7 +24,7 @@ def test_csv_roundtrip_with_commas_and_quotes(tmp_path):
 
 
 def test_variants_csv_text_matches_file(tmp_path):
-    # Сторінка для дизайнерів віддає той самий CSV, що й CLI, але з пам'яті.
+    # The designer page returns the same CSV as the CLI, but from memory.
     write_variants_csv([ROW], tmp_path / "v.csv")
     with open(tmp_path / "v.csv", newline="", encoding="utf-8") as f:
         assert variants_csv_text([ROW]) == f.read()

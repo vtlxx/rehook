@@ -1,4 +1,4 @@
-"""Команда report: порівняння AI-модифікацій з ручними за вивантаженням з Ads Manager."""
+"""The report command: AI modifications vs manual ones, from an Ads Manager export."""
 import csv
 import math
 import re
@@ -15,7 +15,7 @@ MIN_GROUP_SIZE = 30
 
 
 def parse_ad_name(name: str) -> dict | None:
-    """SL_W012_AI_H03_pain-lost-sock → переможець, група (AI/MAN), номер хука, slug кута."""
+    """SL_W012_AI_H03_pain-lost-sock → winner, group (AI/MAN), hook number, angle slug."""
     match = AD_NAME_RE.match(name.strip())
     if not match:
         return None
@@ -24,19 +24,19 @@ def parse_ad_name(name: str) -> dict | None:
 
 
 def adjusted_purchases(purchases: float, undercount: float) -> float:
-    """Meta бачить на ~12% менше покупок, ніж бекенд, тому додаємо втрачене."""
+    """Meta sees ~12% fewer purchases than the backend, so we add back what is missing."""
     return purchases / (1 - undercount)
 
 
 def ad_romi(row: dict, ltv: float, undercount: float) -> float:
-    """ROMI = LTV-виручка / spend (1.35 = 135%, так рахує команда)."""
+    """ROMI = LTV revenue / spend (1.35 = 135%, the way the team counts it)."""
     if row["spend"] == 0:
         return 0.0
     return adjusted_purchases(row["purchases"], undercount) * ltv / row["spend"]
 
 
 def wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
-    """95% довірчий інтервал Вілсона для частки k/n — коректний і на малих вибірках."""
+    """95% Wilson confidence interval for the share k/n: correct on small samples too."""
     if n == 0:
         return (0.0, 0.0)
     p = k / n
@@ -57,7 +57,7 @@ def load_ads(path: str) -> list[dict]:
 
 def _group_row(group: str, slug: str, ads: list[dict], ltv: float, min_spend: float,
                min_romi: float, undercount: float) -> dict:
-    """Один рядок звіту. Середні зважені за spend рахуємо як відношення сум."""
+    """One report row. Spend-weighted means are computed as ratios of sums."""
     spend = sum(a["spend"] for a in ads)
     purchases_adj = sum(adjusted_purchases(a["purchases"], undercount) for a in ads)
     scaled = sum(1 for a in ads if a["spend"] >= min_spend and ad_romi(a, ltv, undercount) >= min_romi)
@@ -89,7 +89,7 @@ def summarize(rows: list[dict], ltv: float, min_spend: float, min_romi: float, u
 
     params = (ltv, min_spend, min_romi, undercount)
     result = [_group_row(g, "ALL", by_group[g], *params) for g in GROUPS]
-    # Розбивка за кутами — лише для AI.
+    # Breakdown by angle: AI only.
     for slug in sorted({a["slug"] for a in by_group["AI"]}):
         ads = [a for a in by_group["AI"] if a["slug"] == slug]
         result.append(_group_row("AI", slug or "-", ads, *params))
@@ -113,7 +113,7 @@ def write_report_csv(rows: list[dict], path: Path) -> None:
 def print_report(summary: dict, console: Console) -> None:
     table = Table(title="AI vs MAN modifications")
     for col in ("Group", "Angle", "Ads", "Scaled", "Share", "95% CI", "Spend", "CPA", "ROMI"):
-        # no_wrap: назви кутів і інтервали не обрізаємо навіть у вузькому терміналі
+        # no_wrap: angle names and intervals are not cut even in a narrow terminal
         table.add_column(col, justify="left" if col in ("Group", "Angle") else "right", no_wrap=True)
     for r in summary["rows"]:
         table.add_row(
@@ -134,7 +134,7 @@ def run_report(args) -> None:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     write_report_csv(summary["rows"], out_dir / "report.csv")
-    # Таблиця широка: не даємо rich стискати її до 80 символів (напр. у пайпі чи CI)
+    # The table is wide: do not let rich squeeze it to 80 columns (e.g. in a pipe or CI)
     console = Console(width=max(Console().width, 110))
     print_report(summary, console)
     console.print(f"Saved {out_dir / 'report.csv'}")

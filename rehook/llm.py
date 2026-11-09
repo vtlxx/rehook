@@ -1,6 +1,6 @@
-"""Виклик моделі: промпт з файлу → відповідь у JSON → перевірка → один повтор при помилці.
+"""Model call: prompt from a file → JSON reply → validation → one retry on error.
 
-Тут же облік токенів, вартість запуску і mock-режим (відповіді з tests/fixtures).
+Also tracks tokens, run cost, and mock mode (replies from tests/fixtures).
 """
 import json
 import re
@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Callable
 
 MODEL = "claude-sonnet-5-5"
-PRICE_IN = 2.0    # $ за 1M вхідних токенів
-PRICE_OUT = 10.0  # $ за 1M вихідних токенів
+PRICE_IN = 2.0    # $ per 1M input tokens
+PRICE_OUT = 10.0  # $ per 1M output tokens
 MAX_TOKENS = 8000
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,13 +20,13 @@ PLACEHOLDER_RE = re.compile(r"\{\{(\w+)\}\}")
 
 
 class LLMError(Exception):
-    """Модель не дала придатної відповіді (або немає mock-фікстури)."""
+    """The model gave no usable reply (or there is no mock fixture)."""
 
 
 def render_prompt(name: str, variables: dict) -> str:
-    """Читає prompts/<name>.md і підставляє {{змінні}}.
+    """Reads prompts/<name>.md and fills in {{variables}}.
 
-    Не str.format: у промптах є фігурні дужки JSON-схем.
+    Not str.format: the prompts contain the curly braces of JSON schemas.
     """
     text = (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8")
     for key, value in variables.items():
@@ -40,12 +40,12 @@ def render_prompt(name: str, variables: dict) -> str:
 
 
 def parse_json(text: str) -> dict:
-    """Знімає обгортку ```json ... ``` (модель іноді її додає, разом з текстом довкола) і парсить об'єкт."""
+    """Strips a ```json ... ``` wrapper (the model sometimes adds one, with text around it) and parses the object."""
     cleaned = text.strip()
     fence = re.search(r"```(?:json)?\s*(.*?)\s*```", cleaned, re.DOTALL)
     if fence:
         cleaned = fence.group(1)
-    data = json.loads(cleaned)  # json.JSONDecodeError — підклас ValueError
+    data = json.loads(cleaned)  # json.JSONDecodeError is a subclass of ValueError
     if not isinstance(data, dict):
         raise ValueError("expected a JSON object at the top level")
     return data
@@ -60,7 +60,7 @@ class LLM:
 
     @property
     def client(self):
-        # Клієнт створюємо ліниво: у mock-режимі ключ і мережа не потрібні.
+        # The client is created lazily: mock mode needs neither a key nor the network.
         if self._client is None:
             import anthropic
             self._client = anthropic.Anthropic()
@@ -68,7 +68,7 @@ class LLM:
 
     def ask_json(self, step: str, prompt_name: str, variables: dict,
                  validate: Callable[[dict], None], fixture: str | None = None) -> dict:
-        """Повертає перевірений dict. validate кидає ValueError з поясненням, що не так."""
+        """Returns a validated dict. validate raises ValueError explaining what is wrong."""
         if self.mock:
             return self._from_fixture(step, fixture or step, validate)
 
@@ -79,7 +79,7 @@ class LLM:
                 raise ValueError("the reply was cut off at max_tokens; reply with shorter, complete JSON")
             return self._check(raw, validate)
         except ValueError as first_error:
-            # Один повтор: показуємо моделі її відповідь і текст помилки.
+            # One retry: show the model its reply and the error text.
             messages += [
                 {"role": "assistant", "content": raw or "(empty)"},
                 {"role": "user", "content": f"Your previous reply was invalid: {first_error}. "
@@ -92,11 +92,11 @@ class LLM:
                 raise LLMError(f"step {step}: invalid model reply after retry: {second_error}") from None
 
     def _call(self, step: str, messages: list[dict]) -> tuple[str, bool]:
-        """Повертає (текст, чи обрізано по max_tokens)."""
+        """Returns (text, whether it was cut off at max_tokens)."""
         response = self.client.messages.create(
             model=self.model,
             max_tokens=MAX_TOKENS,
-            output_config={"effort": "low"},  # короткі тексти: швидкість важливіша за глибину
+            output_config={"effort": "low"},  # short texts: speed matters more than depth
             messages=messages,
         )
         self.usage.append({"step": step, "input_tokens": response.usage.input_tokens,

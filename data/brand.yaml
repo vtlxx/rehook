@@ -1,13 +1,13 @@
 product: SockLock magnetic socks
 offer: "5 pairs for $29, then a new delivery every quarter"
 price_rules:
-  - "$29"          # єдина допустима ціна в текстах
-facts:             # те, що можна стверджувати
+  - "$29"          # the only price allowed in copy
+facts:             # what we may claim
   - small magnet on the cuff keeps the pair together
   - pairs stay together in the washer and dryer
   - subscription, new delivery every quarter
   - personalised offer after a short quiz
-banned_claims:     # не можна обіцяти
+banned_claims:     # what we must not promise
   - "never lose a sock again guaranteed"
   - medical or health benefits
   - "free"

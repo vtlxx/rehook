@@ -32,7 +32,7 @@ def test_validate_variants():
 
 
 def test_validate_variants_more_than_seven_allows_repeats():
-    validate_variants(good(9), 9)          # ceil(9/7)=2 повтори одного типу дозволені
+    validate_variants(good(9), 9)          # ceil(9/7)=2 repeats of one type are allowed
 
 
 def test_next_hook_number_and_ids():

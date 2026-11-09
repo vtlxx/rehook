@@ -1,11 +1,11 @@
-"""Крок 7: оцінка варіантів за рубрикою.
+"""Step 7: scoring variants with a rubric.
 
-Це лише ПОРЯДОК у списку, а не прогноз: і люди, і моделі погано вгадують,
-який хук виграє, — вирішує тест. Тому:
-- модель ставить 1–5 за кожним із 5 критеріїв, підсумок рахує код
-  (окремі критерії стабільніші за одну «загальну» оцінку);
-- варіанти йдуть у перемішаному порядку з фіксованим seed (модель схильна
-  вище ставити те, що стоїть першим).
+This is only an ORDERING in the list, not a forecast: both people and models are bad
+at guessing which hook will win; the test decides. Therefore:
+- the model gives 1–5 on each of 5 criteria, and code computes the total
+  (separate criteria are more stable than one "overall" score);
+- variants go in shuffled order with a fixed seed (the model tends to
+  rate whatever comes first higher).
 """
 import random
 
@@ -16,7 +16,7 @@ CRITERIA = ["stop_scroll", "specificity", "clarity_3s", "tone_fit", "winner_like
 
 
 def score_from_criteria(c: dict) -> float:
-    """Сума 5…25 → шкала 1…10."""
+    """Sum 5…25 → scale 1…10."""
     total = sum(c[name] for name in CRITERIA)
     return round(1 + (total - 5) * 9 / 20, 1)
 

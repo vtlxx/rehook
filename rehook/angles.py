@@ -1,4 +1,4 @@
-"""Крок 2: матриця кутів — 6 різних «заходів» до того самого ролика."""
+"""Step 2: angle matrix: 6 different "approaches" to the same ad."""
 from itertools import combinations
 
 from rehook.llm import LLM
@@ -7,7 +7,7 @@ NUM_ANGLES = 6
 EMOTIONS = ["humor", "frustration", "relief", "curiosity"]
 FRAME_FORMATS = ["close-up", "pov", "talking-head", "on-screen-text", "before-after"]
 DIMENSIONS = ("pain", "persona", "emotion", "frame_format")
-MIN_FORMATS = 4  # перші кадри мають різнитися: Andromeda порівнює і картинку
+MIN_FORMATS = 4  # first frames must differ: Andromeda compares the image too
 
 
 def _dims(angle: dict) -> tuple:
@@ -19,7 +19,7 @@ def validate_angles(data: dict, personas: list[str]) -> None:
     if not isinstance(angles, list) or len(angles) != NUM_ANGLES:
         raise ValueError(f"need exactly {NUM_ANGLES} angles")
     for a in angles:
-        # Лише ValueError: інакше LLM.ask_json не зробить повтор із текстом помилки.
+        # ValueError only: otherwise LLM.ask_json will not retry with the error text.
         missing = [k for k in ("angle_id", "slug") + DIMENSIONS if not str(a.get(k, "")).strip()]
         if missing:
             raise ValueError(f"angle is missing fields: {missing}")

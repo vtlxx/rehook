@@ -1,11 +1,11 @@
-"""Сторінка для дизайнерів (app.py): запускаємо її без браузера через Streamlit AppTest."""
+"""Designer page (app.py): run it without a browser through Streamlit AppTest."""
 import re
 from pathlib import Path
 
 import pytest
 from streamlit.testing.v1 import AppTest
 
-APP = "../app.py"  # шлях відносно цього файлу
+APP = "../app.py"  # path relative to this file
 
 
 @pytest.fixture
@@ -38,9 +38,9 @@ def test_mock_generate_shows_cards_by_angle_with_flags(app):
     at = generate(app)
     assert not at.exception and not at.error
     assert len(picks(at)) == 20
-    assert len(at.subheader) == 6                      # картки згруповані за 6 кутами
+    assert len(at.subheader) == 6                      # cards are grouped by 6 angles
     text = page_text(at)
-    assert "price:$19" in text and "banned_claim:free" in text   # прапорці видно на картках
+    assert "price:$19" in text and "banned_claim:free" in text   # flags are visible on the cards
     assert "Selected 0 of 20" in text
 
 
@@ -72,7 +72,7 @@ def test_page_is_in_english(app):
     texts = [e.value for group in (at.title, at.subheader, at.markdown, at.caption) for e in group]
     texts += [e.label for group in (at.button, at.checkbox, at.selectbox, at.text_area, at.number_input,
                                      at.metric, at.expander) for e in group]
-    cyrillic = [t for t in texts if re.search("[А-Яа-яЇїІіЄєҐґ]", t)]
+    cyrillic = [t for t in texts if re.search("[\u0400-\u04FF]", t)]
     assert cyrillic == []
 
 
@@ -81,12 +81,12 @@ WINNER_012 = (Path(__file__).resolve().parent.parent / "data" / "winner_012.txt"
 
 def test_sample_is_default_source_and_other_inputs_hidden(app):
     assert app.radio(key="source").value == "Sample from data/"
-    assert [t.key for t in app.text_area if not t.disabled] == []   # редагувати можна лише в режимі «Paste»
+    assert [t.key for t in app.text_area if not t.disabled] == []   # editing only in "Paste" mode
 
 
 def test_paste_mode_generates_from_pasted_text(app):
     app.radio(key="source").set_value("Paste text").run()
-    assert [s.key for s in app.selectbox] == ["brief"]               # приклад більше не обирається
+    assert [s.key for s in app.selectbox] == ["brief"]               # no sample to pick any more
     app.text_area(key="pasted").input(WINNER_012).run()
     at = generate(app)
     assert not at.error and len(picks(at)) == 20

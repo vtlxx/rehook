@@ -1,19 +1,19 @@
-"""Крок 8: відбір топ-n зі збереженням різноманітності кутів."""
+"""Step 8: pick the top n while keeping angle variety."""
 import math
 from collections import Counter
 
 
 def select_top(variants: list[dict], n: int, angle_ids: list[str]) -> tuple[list[dict], list[dict], list[str]]:
-    """Повертає (відібрані за спаданням оцінки, решта з reason=below_top_n, попередження).
+    """Returns (selected by descending score, the rest with reason=below_top_n, warnings).
 
-    Правило: не менше 2 і не більше ceil(n / кути) + 1 варіантів на кут.
-    Спершу беремо по 2 найкращі з кожного кута, потім добираємо за оцінкою.
+    Rule: at least 2 and at most ceil(n / angles) + 1 variants per angle.
+    First take the best 2 from each angle, then fill up by score.
     """
     cap = math.ceil(n / len(angle_ids)) + 1
     ordered = sorted(variants, key=lambda v: v["score"], reverse=True)
 
     selected, per_angle, warnings = [], Counter(), []
-    # Ідемо за всіма запланованими кутами — і тими, де після фільтра нічого не лишилось.
+    # Go over all planned angles, including those with nothing left after the filter.
     for angle in angle_ids:
         best_two = [v for v in ordered if v["angle_id"] == angle][:2]
         selected += best_two

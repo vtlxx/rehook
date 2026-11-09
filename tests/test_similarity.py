@@ -2,7 +2,7 @@ import csv
 
 from rehook.similarity import DEFAULT_THRESHOLD, filter_similar, similarity_matrix, variant_text
 
-# Калібрувальні пари: та сама думка іншими словоформами / з перестановкою (дублі)
+# Calibration pairs: the same idea with other word forms / reordered (dupes)
 DUPES = [
     ("I used to lose a sock every laundry day. Where do my socks go?!",
      "I kept losing socks every single laundry day. Where did my socks go?"),
@@ -26,7 +26,7 @@ DUPES = [
      "Dorm laundry ate half of my socks this semester. Dorm laundry strikes again!"),
 ]
 
-# Та сама тема і спільні слова (sock/laundry/pair), але інша ідея — не дублі
+# Same topic and shared words (sock/laundry/pair), but a different idea: not dupes
 NOT_DUPES = [
     ("Lost a sock again? Socks that lock", "Folding laundry takes forever? Pairs come out matched"),
     ("I used to lose a sock every laundry day. Where do my socks go?!",
@@ -51,7 +51,7 @@ with open("data/launched.csv", newline="", encoding="utf-8") as f:
 
 
 def calibrated(pairs):
-    texts = [t.lower() for p in pairs for t in p] + HISTORY_TEXTS   # реалістичний корпус для IDF
+    texts = [t.lower() for p in pairs for t in p] + HISTORY_TEXTS   # realistic corpus for IDF
     m = similarity_matrix(texts)
     return [m[2 * i, 2 * i + 1] for i in range(len(pairs))]
 

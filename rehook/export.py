@@ -1,4 +1,4 @@
-"""Крок 8 (вивід): variants.csv, rejected.csv, brief.md для дизайнера і зведення в консоль."""
+"""Step 8 (output): variants.csv, rejected.csv, brief.md for the designer, and the console summary."""
 import csv
 import io
 from collections import Counter
@@ -30,7 +30,7 @@ def _write_csv(rows: list[dict], path: Path, columns: list[str]) -> None:
 
 
 def variants_csv_text(variants: list[dict]) -> str:
-    """Той самий variants.csv, але рядком: для кнопки «Завантажити» на сторінці."""
+    """The same variants.csv, as a string: for the download button on the page."""
     return _csv_text(variants, VARIANT_COLUMNS)
 
 
@@ -51,7 +51,7 @@ def variant_warnings(variant: dict) -> list[str]:
 
 def write_brief(path: Path, winner: dict, parsed: dict, angles: list[dict], selected: list[dict],
                 warnings: list[str]) -> None:
-    """Завдання дизайнеру: розбір переможця, незмінна частина, варіанти за кутами."""
+    """Designer brief: winner breakdown, unchanged part, variants by angle."""
     wa = parsed["winning_angle"]
     lines = [f"# Hook variants for winner {winner['winner_id']}", ""]
     if warnings:

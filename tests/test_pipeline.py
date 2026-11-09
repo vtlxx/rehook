@@ -66,7 +66,7 @@ def test_needs_topup():
     assert needs_topup(short, angles, 20) == {"A3": 5}
 
 
-# --- догенерація: фейкова модель, що відповідає за маркерами в промпті ---
+# --- top-up: a fake model that replies based on markers in the prompt ---
 
 def fixture_text(name):
     return (FIX / f"{name}.json").read_text()
@@ -93,7 +93,7 @@ def router(kwargs):
         angle_id = json.loads(fixture_text("angles"))["angles"]
         slug_to_id = {a["slug"]: a["angle_id"] for a in angle_id}
         aid = next(i for s, i in slug_to_id.items() if f'"{s}"' in this_angle)
-        if "these:\nnone" not in prompt:                        # раунд догенерації
+        if "these:\nnone" not in prompt:                        # top-up round
             return fixture_text("generate_A3")
         return json.dumps(SAME_A3) if aid == "A3" else fixture_text(f"generate_{aid}")
     if "compliance reviewer" in prompt:
