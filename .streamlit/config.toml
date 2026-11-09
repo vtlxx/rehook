@@ -1,0 +1,6 @@
+# Start straight away: no email prompt on first launch, no usage statistics.
+[server]
+showEmailPrompt = false
+
+[browser]
+gatherUsageStats = false

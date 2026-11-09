@@ -1,5 +1,63 @@
 # ReHook — hook generator for creative modifications
 
+## Quick start for designers
+
+ReHook takes the script of a winning ad and suggests ~20 new openings (the first 3 seconds) for it. You work with it on a web page in your browser.
+
+**You need:** a Mac, the Terminal app (Applications → Utilities → Terminal) and an Anthropic API key from your team lead. Without a key, only a demo with pre-recorded answers works.
+
+### First time only (about 5 minutes)
+
+Open Terminal, paste each line, and press Enter after each one.
+
+1. Install the `uv` tool, which sets up Python for you:
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+   When it finishes, close Terminal and open it again.
+2. Download ReHook into the `rehook` folder in your home folder:
+   ```bash
+   git clone https://github.com/vtlxx/rehook.git ~/rehook
+   ```
+   If macOS offers to install "command line developer tools", agree, wait for it to finish and run the line again.
+3. Install what ReHook needs:
+   ```bash
+   cd ~/rehook && uv venv --python 3.12 && uv pip install -r requirements.txt
+   ```
+4. Save your API key (replace `PASTE-YOUR-KEY-HERE` with the key, keep the quotes):
+   ```bash
+   echo 'ANTHROPIC_API_KEY=PASTE-YOUR-KEY-HERE' > ~/rehook/.env
+   ```
+   The key stays only on your computer.
+
+### Every time
+
+Paste this in Terminal and press Enter:
+
+```bash
+cd ~/rehook && set -a; [ -f .env ] && . ./.env; set +a; .venv/bin/streamlit run app.py
+```
+
+The page opens in your browser at http://localhost:8501. Keep the Terminal window open while you work; to stop, click it and press `Ctrl+C`.
+
+### On the page
+
+1. **Winner script:** pick a sample, upload your `.txt` script, or paste its text. The script must start with a line like `WINNER_ID: 044`, followed by lines with timecodes (`[0-3s] VO: "…"`); see `examples/winner_044.txt`.
+2. **Brand brief:** pick the brief for the product.
+3. Untick **Mock** (it is only a demo, and works only for winner 012). Leave it ticked if you just want to look around without a key.
+4. Optional: under **Launch history**, upload the hooks already launched for this winner and an Ads Manager export, so ReHook doesn't repeat them and numbers new ads correctly.
+5. Press **Generate** and wait about half a minute (one run costs about $0.15).
+6. Read the cards. Each one has the voice-over 🎙, on-screen text 🔤 and first frame 🎬. Red ⚠️ lines mean "check this before use": wrong price, a banned word or a promise the brand can't make, too many words.
+7. Tick the variants you will make and press **Download selected as CSV**. The IDs in the file (`SL_W044_AI_H04_…`) are the ad names for Ads Manager. **Download brief.md** gives a full brief with the breakdown of the winner.
+
+**If something goes wrong:**
+- *"mock fixtures exist only for winner 012"*: untick Mock.
+- *"ANTHROPIC_API_KEY is not set"*: do step 4 of the first-time setup, stop the page with `Ctrl+C` and start it again.
+- *"command not found: uv"*: close Terminal, open it again and retry; if it still fails, repeat step 1.
+- *"WINNER_ID line not found"*: add a `WINNER_ID: …` line at the top of the script.
+
+Ready-made files to try the page with are in [`examples/`](examples/README.md).
+
 ## What it is and what problem it solves
 
 SockLock (magnetic socks on subscription, traffic from Meta) wants to grow spend from $400k to $800k a month within six months without letting ROMI drop below 125%. That takes ~500 creative modifications a month instead of 240. Six motion designers spend ~3 h per modification, and half of that time goes into coming up with new hooks for the winning ad's script by hand.
