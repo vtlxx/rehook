@@ -1,27 +1,50 @@
-# ReHook — генератор хуків для модифікацій креативів
+# ReHook — hook generator for creative modifications
 
-## Що це і яку проблему розв'язує
+## What it is and what problem it solves
 
-SockLock (магнітні шкарпетки за підпискою, трафік з Meta) хоче за пів року підняти spend з $400k до $800k на місяць, не опустивши ROMI нижче 125%. Для цього потрібно ~500 модифікацій креативів на місяць замість 240. Шість motion-дизайнерів витрачають ~3 год на модифікацію, і половину цього часу вручну вигадують нові хуки до скрипту ролика-переможця.
+SockLock (magnetic socks on subscription, traffic from Meta) wants to grow spend from $400k to $800k a month within six months without letting ROMI drop below 125%. That takes ~500 creative modifications a month instead of 240. Six motion designers spend ~3 h per modification, and half of that time goes into coming up with new hooks for the winning ad's script by hand.
 
-ReHook бере скрипт переможця і приблизно за хвилину видає ~20 **різних** варіантів початку ролика (голос за кадром на перші ~3 с, текст на екрані, опис першого кадру). Утиліта перевіряє їх за брифом бренду, відсіює схожі між собою й на вже запущені хуки і складає завдання для дизайнера. Дизайнер вибирає й править, а не пише з нуля.
+ReHook takes the winner's script and in about half a minute produces ~20 **distinct** openings for the ad (voice-over for the first ~3 s, on-screen text, a description of the first frame). It checks them against the brand brief, drops variants that are too similar to each other or to hooks already launched, and writes a brief for the designer. The designer picks and edits instead of writing from scratch.
 
-**Очікуваний ефект.** Якщо час на модифікацію скоротиться з 3 до 1,5 год, команда робитиме 343 модифікації замість 240, це ≈ +$46k EGP на місяць (песимістичний сценарій +$10k, оптимістичний +$90k). Зауваження: −50% часу — оптимістичне припущення. У контрольованих дослідженнях AI-інструментів для дизайнерів і ІТ-фахівців економія часу була ~20–30%, тому пілот нижче ставить ціль −30%.
+**Expected effect.** If time per modification drops from 3 to 1.5 h, the team makes 343 modifications instead of 240, which is ≈ +$46k EGP a month (pessimistic scenario +$10k, optimistic +$90k). Caveat: −50% time is an optimistic assumption. Controlled studies of AI tools for designers and IT specialists measured time savings of ~20–30%, so the pilot below targets −30%.
 
-## Встановлення
+## Installation
 
-Потрібен Python 3.11+.
+You need Python 3.11+ (check with `python3 --version`; on macOS the system Python is usually 3.9). The simplest way to get a newer one is [uv](https://docs.astral.sh/uv/) (`brew install uv`), which downloads Python 3.12 by itself.
 
 ```bash
-pip install -r requirements.txt
-export ANTHROPIC_API_KEY=sk-ant-...   # не потрібен для --mock
+git clone git@github.com:vtlxx/rehook.git
+cd rehook
+uv venv --python 3.12             # or, with Python 3.11+ installed: python3.12 -m venv .venv
+source .venv/bin/activate
+uv pip install -r requirements.txt   # or: pip install -r requirements.txt
 ```
 
-Модель за замовчуванням — `claude-sonnet-5-5`. Модель і ціни за 1M токенів задані константами на початку `rehook/llm.py`, модель можна змінити прапорцем `--model`.
+Check that everything works without an API key (all tests, plus a demo on recorded model replies):
 
-## Запуск
+```bash
+pytest -q
+python -m rehook generate --winner data/winner_012.txt --brand data/brand.yaml \
+  --history data/launched.csv --ads data/ads_export.csv --mock
+streamlit run app.py              # designer page at http://localhost:8501
+```
 
-### `generate` — варіанти хуків для переможця
+The real model needs an Anthropic API key. Set it in the current terminal, or put it in a `.env` file in the project root (it is in `.gitignore`) and load it before running:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+# or
+echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
+set -a && . ./.env && set +a
+```
+
+Every command below runs from the project root with the environment activated (`source .venv/bin/activate`).
+
+The default model is `claude-sonnet-5-5`. The model and the prices per 1M tokens are constants at the top of `rehook/llm.py`; the `--model` flag overrides the model.
+
+## Usage
+
+### `generate` — hook variants for a winner
 
 ```bash
 python -m rehook generate \
@@ -31,100 +54,100 @@ python -m rehook generate \
   --ads data/ads_export.csv
 ```
 
-Без ключа, на записаних відповідях моделі (для демо й тестів):
+Without a key, on recorded model replies (for demos and tests):
 
 ```bash
 python -m rehook generate --winner data/winner_012.txt --brand data/brand.yaml \
   --history data/launched.csv --ads data/ads_export.csv --mock
 ```
 
-Прапорці: `--n 20` (скільки варіантів лишити), `--out out/`, `--sim-threshold 0.5` (поріг схожості), `--seed 42` (перемішування під час оцінювання), `--model`. Mock-фікстури записані лише для переможця 012 з `--n 20` і порогом схожості за замовчуванням.
+Flags: `--n 20` (how many variants to keep), `--out out/`, `--sim-threshold 0.5` (similarity threshold), `--seed 42` (shuffle order during scoring), `--model`. Mock fixtures exist only for winner 012 with `--n 20` and the default similarity threshold.
 
-Результат у `out/`:
-- `variants.csv` — відібрані варіанти з ID для Ads Manager (`SL_W012_AI_H11_pain-lost-sock`), кутом, типом хука, оцінкою, схожістю та прапорцями;
-- `rejected.csv` — відсіяні варіанти і причина (`similar_to_launched:<ad_name>`, `duplicate_of:<id>`, `below_top_n`);
-- `brief.md` — завдання для дизайнера: розбір переможця, незмінна частина скрипту, варіанти за кутами, прапорці позначені ⚠️;
-- у консолі — скільки згенеровано, відсіяно й лишилось, токени за кроками, вартість і час.
+Output in `out/`:
+- `variants.csv` — selected variants with an Ads Manager ID (`SL_W012_AI_H11_pain-lost-sock`), angle, hook type, score, similarity and flags;
+- `rejected.csv` — dropped variants and the reason (`similar_to_launched:<ad_name>`, `duplicate_of:<id>`, `below_top_n`);
+- `brief.md` — the designer's brief: winner breakdown, the unchanged part of the script, variants by angle, flags marked ⚠️;
+- in the console — how many were generated, dropped and kept, tokens per step, cost and time.
 
-Реальний запуск для переможця 012 (`claude-sonnet-5-5`, 10 викликів, без повторів і догенерації): 30 згенеровано → 20 відібрано з 6 кутів, 1 відсіяно як схожий на запущений, 6 позначено для перевірки дизайнером; **$0.15–0.16 і 28–33 с** за два прогони.
+Real run for winner 012 (`claude-sonnet-5-5`, 10 calls, no retries or top-up): 30 generated → 20 selected across 6 angles, 1 dropped as similar to a launched hook, 6 flagged for designer review; **$0.15–0.16 and 28–33 s** over two runs.
 
-### Сторінка для дизайнерів
+### Designer page
 
 ```bash
 streamlit run app.py
 ```
 
-Відкриється `http://localhost:8501`. Дизайнер обирає приклад скрипту з `data/` або завантажує чи вставляє свій, обирає бриф і натискає «Згенерувати». Варіанти показуються картками за кутами, з оцінкою і прапорцями ⚠️ (ціна, заборонені слова й обіцянки, довжина). Потрібні варіанти позначаються галочками, а «Завантажити CSV обраних» віддає `variants.csv` лише з ними; поруч кнопка для `brief.md` і список відсіяних з причинами. Історію запусків (`launched.csv`, `ads_export.csv`) можна завантажити свою, інакше беруться файли з `data/`.
+This opens `http://localhost:8501`. The designer picks a sample script from `data/` or uploads or pastes their own, picks a brief and presses **Згенерувати** (Generate). Variants appear as cards grouped by angle, with a score and ⚠️ flags (price, banned words and claims, length). The designer ticks the variants they want, and **Завантажити CSV обраних** (Download selected CSV) returns `variants.csv` with only those; next to it are a button for `brief.md` and the list of dropped variants with reasons. Launch history (`launched.csv`, `ads_export.csv`) can be uploaded; otherwise the files in `data/` are used.
 
-Ядро те саме, що й у CLI: сторінка лише викликає `run_generate`. Без `ANTHROPIC_API_KEY` у середовищі увімкнено mock (записані відповіді для переможця 012). Щоб працювати з реальною моделлю, запустіть сторінку з ключем, наприклад з файлу `.env`:
+The core is the same as in the CLI: the page only calls `run_generate`. Without `ANTHROPIC_API_KEY` in the environment, mock mode is on (recorded replies for winner 012). To work with the real model, start the page with the key, for example from `.env`:
 
 ```bash
 set -a && . ./.env && set +a && streamlit run app.py
 ```
 
-### `report` — AI-модифікації проти ручних
+### `report` — AI modifications vs manual ones
 
 ```bash
 python -m rehook report --ads data/ads_export.csv
 ```
 
-Прапорці: `--ltv 68`, `--min-spend 500`, `--min-romi 1.25`, `--meta-undercount 0.12` (`0` вимикає поправку), `--out out/`. Друкує таблицю AI vs MAN і зберігає `out/report.csv`.
+Flags: `--ltv 68`, `--min-spend 500`, `--min-romi 1.25`, `--meta-undercount 0.12` (`0` turns the correction off), `--out out/`. Prints an AI vs MAN table and saves `out/report.csv`.
 
-### Вхідні файли і як підставити свої
+### Input files and how to use your own
 
-| Файл | Що всередині |
+| File | Contents |
 |---|---|
-| `winner_*.txt` | Скрипт переможця з таймкодами; перший рядок `WINNER_ID: 012`. Рядки `[0-3s]` — хук, усе з 3-ї секунди не змінюється. |
-| `brand.yaml` | Продукт, оффер, дозволені ціни (`price_rules`), факти (`facts`), заборонені обіцянки й слова, тон, ліміти слів, персони. |
-| `launched.csv` | `ad_name,hook_vo,on_screen_text` — уже запущені хуки (повна назва як в Ads Manager). Нові варіанти не мають бути на них схожі. |
-| `ads_export.csv` | Звичайне вивантаження з Ads Manager: `ad_name,spend,purchases,impressions,clicks`. |
+| `winner_*.txt` | Winner script with timecodes; first line `WINNER_ID: 012`. `[0-3s]` lines are the hook; everything from second 3 on stays unchanged. |
+| `brand.yaml` | Product, offer, allowed prices (`price_rules`), facts (`facts`), banned claims and words, tone, word limits, personas. |
+| `launched.csv` | `ad_name,hook_vo,on_screen_text` — hooks already launched (full name as in Ads Manager). New variants must not be similar to them. |
+| `ads_export.csv` | A regular Ads Manager export: `ad_name,spend,purchases,impressions,clicks`. |
 
-Назви оголошень: `SL_W{переможець}_{AI|MAN}_H{nn}_{slug}`. За ними `report` відрізняє AI-модифікації від ручних, а `generate` продовжує нумерацію, щоб не збігтися із запущеними. Дані в `data/` синтетичні; `ads_export.csv` генерує `scripts/make_ads_export.py`.
+Ad names: `SL_W{winner}_{AI|MAN}_H{nn}_{slug}`. `report` uses them to tell AI modifications from manual ones, and `generate` continues the numbering so it doesn't collide with launched ads. The data in `data/` is synthetic; `ads_export.csv` is produced by `scripts/make_ads_export.py`.
 
-## Як працює
+## How it works
 
-1. **Розбір переможця** (модель): структура ролика hook/problem/demo/offer/cta і за рахунок чого він спрацював.
-2. **Матриця кутів** (модель): 6 кутів, кожна пара відрізняється щонайменше за 2 з 4 вимірів (біль, персона, емоція, формат першого кадру), щонайменше 4 різні формати кадру, один кут «безпечний», близький до переможця. Код перевіряє ці правила.
-3. **Генерація** (модель, 6 паралельних викликів, по одному на кут): по 5 варіантів на кут, усередині кута різні типи хука (питання, зізнання, сміливе твердження, POV, контраст, цифра, інтрига). У промпт ідуть бриф, розбір, найкращі й найгірші запущені хуки за ROMI.
-4. **Перевірки кодом**: довжина, ціни, крім дозволеної, заборонені слова, короткі заборонені обіцянки ("free", "lifetime"), ALL CAPS. Варіанти не видаляються, а позначаються.
-5. **Перевірка обіцянок** (модель): чи є твердження поза фактами брифу; модель цитує фразу-порушника.
-6. **Фільтр схожості** (код): TF-IDF на символьних n-грамах + косинус, порівняння між варіантами і з історією; з пари схожих лишається варіант з кращою оцінкою.
-7. **Оцінка** (модель): 5 критеріїв по 1–5 (зупиняє скрол, конкретність, зрозумілість за 3 с, тон, схожість на переможців), підсумок 1–10 рахує код; варіанти подаються в перемішаному порядку. Виконується до кроку 6, паралельно з кроком 5.
-8. **Відбір і експорт**: топ-n, але не менше 2 і не більше ⌈n/6⌉+1 на кут. Якщо після фільтра варіантів замало, спершу один раунд догенерації для «недобраних» кутів з переліком того, що не можна повторювати.
+1. **Winner breakdown** (model): the ad's hook/problem/demo/offer/cta structure and why it worked.
+2. **Angle matrix** (model): 6 angles; every pair differs in at least 2 of 4 dimensions (pain, persona, emotion, first-frame format), at least 4 different frame formats, one "safe" angle close to the winner. Code checks these rules.
+3. **Generation** (model, 6 parallel calls, one per angle): 5 variants per angle, with different hook types inside an angle (question, confession, bold statement, POV, contrast, number, curiosity). The prompt gets the brief, the breakdown, and the best and worst launched hooks by ROMI.
+4. **Code checks**: length, prices other than the allowed one, banned words, short banned claims ("free", "lifetime"), ALL CAPS. Variants are flagged, not removed.
+5. **Claim check** (model): any statement beyond the brief's facts; the model quotes the offending phrase.
+6. **Similarity filter** (code): TF-IDF on character n-grams + cosine, compared between variants and against history; of a similar pair, the variant with the better score stays.
+7. **Scoring** (model): 5 criteria at 1–5 each (stops the scroll, specificity, clear in 3 s, tone, likeness to winners); code computes the 1–10 total; variants are presented in shuffled order. Runs before step 6, in parallel with step 5.
+8. **Selection and export**: top n, but at least 2 and at most ⌈n/6⌉+1 per angle. If too few variants survive the filter, first one top-up round for the short angles, with a list of what must not be repeated.
 
-Усього ~10 викликів моделі. Відповіді моделі — у JSON; якщо JSON битий або не проходить перевірку, робиться один повтор із текстом помилки. Промпти лежать у `prompts/*.md`.
+About 10 model calls in total. Model replies are JSON; if the JSON is broken or fails validation, there is one retry with the error text. Prompts live in `prompts/*.md`.
 
-## Як виміряти успіх
+## How to measure success
 
-**Пілот: 2 тижні, 2 дизайнери, перехресний дизайн.** Кожен дизайнер робить 20 модифікацій з інструментом і 20 вручну, з тих самих переможців, чергуючи за переможцями або днями. Так різниця між дизайнерами не змішується з ефектом інструменту (при двох людях це критично). Час на модифікацію береться з міток у таск-трекері, а не з самозвіту. ID в назвах оголошень, `report` щотижня.
+**Pilot: 2 weeks, 2 designers, crossover design.** Each designer makes 20 modifications with the tool and 20 by hand, from the same winners, alternating by winner or by day. This keeps the difference between designers from mixing with the tool's effect (critical with only two people). Time per modification comes from task-tracker timestamps, not self-reports. IDs go in ad names; `report` runs weekly.
 
-**Пілот успішний, якщо:**
-1. час на модифікацію менший щонайменше на 30% — головна метрика, вимірюється надійно;
-2. дизайнери використовують інструмент у ≥ 80% модифікацій;
-3. ефективність без явного провалу: частка AI-модифікацій, що дійшли до масштабування, не нижча за нижню межу 95% інтервалу Вілсона для ручних (`report` його друкує).
+**The pilot succeeds if:**
+1. time per modification is at least 30% lower — the main metric, measured reliably;
+2. designers use the tool in ≥ 80% of modifications;
+3. performance shows no clear failure: the share of AI modifications that reached scaling is not below the lower bound of the 95% Wilson interval for manual ones (`report` prints it).
 
-**Чому не «не гірше ніж на 10%».** У Meta до масштабування доходить ~5% креативів (бенчмарк Motion по 578 тис. оголошень). На 40 модифікаціях у групі це 2–4 «переможці». При 2 з 40 95% інтервал частки — від 1,4% до 16,5%, тобто будь-яка різниця тоне в шумі. Щоб статистично підтвердити різницю не більше 10% відносно при частці ~20%, потрібно ~5 000 модифікацій на групу. Тому підсумкова бізнес-метрика — **кількість переможців на місяць** (обсяг × частка): інструмент дає більший обсяг, і її перераховуємо в міру накопичення даних.
+**Why not "no more than 10% worse".** On Meta about 5% of creatives reach scaling (Motion's benchmark across 578k ads). With 40 modifications per group that's 2–4 "winners". At 2 out of 40, the 95% interval for the share runs from 1.4% to 16.5%, so any difference drowns in noise. Confirming a relative difference of no more than 10% at a share of ~20% would take ~5,000 modifications per group. So the final business metric is **winners per month** (volume × share): the tool raises volume, and we recompute the metric as data accumulates.
 
-**Визначення.** ROMI = LTV-виручка / spend, тобто `purchases_adj × LTV / spend` (1,35 = 135%, так рахує команда). Meta бачить на ~12% менше покупок, ніж бекенд, тому `purchases_adj = purchases / (1 − 0.12)`. Поправка однакова для обох груп і не впливає на порівняння AI vs MAN, лише на те, які оголошення проходять поріг ROMI ≥ 1,25.
+**Definitions.** ROMI = LTV revenue / spend, i.e. `purchases_adj × LTV / spend` (1.35 = 135%, the way the team counts it). Meta sees ~12% fewer purchases than the backend, so `purchases_adj = purchases / (1 − 0.12)`. The correction is the same for both groups and doesn't affect the AI vs MAN comparison, only which ads pass the ROMI ≥ 1.25 threshold.
 
-## Обмеження
+## Limitations
 
-- **Схожість рахується лише за текстом.** Meta Andromeda порівнює ще й зображення та звук; частково це закриває обов'язкова різноманітність форматів першого кадру між кутами. Поріг 0,5 — наша власна евристика, підібрана на ~20 розмічених парах (`tests/test_similarity.py`): Meta порогу не публікує. Корпус малий, тому IDF нестабільний, і та сама пара в різних запусках може отримати трохи різну схожість.
-- **Оцінка моделі — лише порядок у списку, не прогноз.** І люди, і моделі погано вгадують, який хук виграє (в експериментах із заголовками люди вгадували майже навмання). Вирішує тест.
-- **Перевірка обіцянок моделлю може помилятися**, тому короткі заборонені слова додатково ловить код.
-- **Дані синтетичні**, цифри в `report` ілюстративні.
+- **Similarity is text-only.** Meta Andromeda also compares images and audio; the required variety of first-frame formats across angles partly covers this. The 0.5 threshold is our own heuristic, tuned on ~20 labelled pairs (`tests/test_similarity.py`): Meta doesn't publish a threshold. The corpus is small, so IDF is unstable, and the same pair can get a slightly different similarity in different runs.
+- **The model's score is only an ordering, not a forecast.** Both people and models are bad at guessing which hook will win (in headline experiments people guessed almost at random). The test decides.
+- **The model's claim check can be wrong**, which is why code also catches short banned words.
+- **The data is synthetic**; the numbers in `report` are illustrative.
 
-## Наступна ітерація
+## Next iteration
 
-- Ваги кутів, які підлаштовуються за результатами `report`.
-- Перевірка схожості перших кадрів за зображеннями.
-- Локалізація варіантів на DE/FR тим самим конвеєром.
-- Verbalized sampling: просити модель про більше кандидатів з оцінкою їхньої «типовості» і брати менш типові — за дослідженнями це помітно підвищує різноманітність.
+- Angle weights that adapt to `report` results.
+- First-frame similarity checks on images.
+- Localizing variants to DE/FR with the same pipeline.
+- Verbalized sampling: ask the model for more candidates with a "typicality" estimate and take the less typical ones; research shows this noticeably increases diversity.
 
-## Розробка
+## Development
 
 ```bash
 pytest -q
 ```
 
-Тести покривають перевірки кодом, фільтр схожості з калібрувальними парами, відбір, формули `report`, повтор при битому JSON, догенерацію, наскрізний прогін `generate --mock` і сторінку для дизайнерів (через Streamlit AppTest, без браузера).
+Tests cover the code checks, the similarity filter with calibration pairs, selection, the `report` formulas, the retry on broken JSON, the top-up round, an end-to-end `generate --mock` run, and the designer page (via Streamlit AppTest, without a browser).
