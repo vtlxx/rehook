@@ -26,14 +26,22 @@ st.caption("Only the first 3 seconds change; the rest of the script stays as in 
 # ── Введення ────────────────────────────────────────────────────────────────
 left, right = st.columns([3, 2])
 with left:
-    sample = st.selectbox("Sample script from data/", SAMPLES, key="sample")
-    uploaded = st.file_uploader("…or upload your own script (.txt)", type="txt")
-    # key залежить від прикладу: при виборі іншого прикладу текст оновлюється
-    text = st.text_area("Winner script (edit it or paste your own)",
-                        value=(DATA / sample).read_text(encoding="utf-8"), height=220, key=f"text_{sample}")
-    if uploaded is not None:
-        text = uploaded.getvalue().decode("utf-8")
-        st.caption(f"Using the uploaded file: {uploaded.name}")
+    # Явний вибір джерела: показуємо лише одне поле, щоб було видно, який скрипт піде в роботу.
+    source = st.radio("Winner script", ["Sample from data/", "Upload a file", "Paste text"],
+                      horizontal=True, key="source")
+    text = ""
+    if source == "Sample from data/":
+        sample = st.selectbox("Sample script", SAMPLES, key="sample")
+        text = (DATA / sample).read_text(encoding="utf-8")
+        st.text_area("Preview", value=text, height=200, disabled=True, key=f"preview_{sample}")
+    elif source == "Upload a file":
+        uploaded = st.file_uploader("Script (.txt) with a WINNER_ID line, e.g. examples/winner_044.txt", type="txt")
+        if uploaded is not None:
+            text = uploaded.getvalue().decode("utf-8")
+            st.text_area("Preview", value=text, height=200, disabled=True, key=f"preview_{uploaded.name}")
+    else:
+        text = st.text_area("Paste the script", height=220, key="pasted",
+                            placeholder='WINNER_ID: 044\n[0-3s] VO: "…"  ON-SCREEN: "…"  VISUAL: …\n[3-8s] VO: "…"')
 with right:
     brief = st.selectbox("Brand brief", BRIEFS, key="brief")
     n = st.number_input("Variants to keep", min_value=6, max_value=60, value=20, step=1, key="n")
@@ -54,8 +62,12 @@ def _input_path(folder: Path, name: str, upload, default: Path) -> str:
 
 
 def generate() -> None:
+    if not text.strip():
+        raise ValueError("Upload a .txt script first" if source == "Upload a file"
+                         else "Paste the winner script first (it starts with a WINNER_ID line)")
     if not mock and not os.environ.get("ANTHROPIC_API_KEY"):
-        raise LLMError("ANTHROPIC_API_KEY is not set: turn on mock or start the page with the key")
+        raise LLMError("ANTHROPIC_API_KEY is not set: tick Mock, or restart the page with the key "
+                       "(see README → Designer page)")
     llm = LLM(mock=mock)
     with tempfile.TemporaryDirectory() as tmp:
         folder = Path(tmp)
@@ -79,7 +91,8 @@ if st.button("Generate", type="primary", key="generate"):
         with st.spinner("Breaking down the winner, building angles, generating and checking variants…"):
             generate()
     except (LLMError, ValueError, KeyError, OSError, anthropic.APIError) as e:
-        st.error(f"Error: {e}")
+        hint = " Untick Mock to run the real model on this script." if mock and "mock" in str(e).lower() else ""
+        st.error(f"Error: {e}.{hint}" if hint else f"Error: {e}")
 
 # ── Результат ───────────────────────────────────────────────────────────────
 result = st.session_state.get("result")

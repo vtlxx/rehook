@@ -1,5 +1,6 @@
 """Сторінка для дизайнерів (app.py): запускаємо її без браузера через Streamlit AppTest."""
 import re
+from pathlib import Path
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -73,3 +74,39 @@ def test_page_is_in_english(app):
                                      at.metric, at.expander) for e in group]
     cyrillic = [t for t in texts if re.search("[А-Яа-яЇїІіЄєҐґ]", t)]
     assert cyrillic == []
+
+
+WINNER_012 = (Path(__file__).resolve().parent.parent / "data" / "winner_012.txt").read_text(encoding="utf-8")
+
+
+def test_sample_is_default_source_and_other_inputs_hidden(app):
+    assert app.radio(key="source").value == "Sample from data/"
+    assert [t.key for t in app.text_area if not t.disabled] == []   # редагувати можна лише в режимі «Paste»
+
+
+def test_paste_mode_generates_from_pasted_text(app):
+    app.radio(key="source").set_value("Paste text").run()
+    assert [s.key for s in app.selectbox] == ["brief"]               # приклад більше не обирається
+    app.text_area(key="pasted").input(WINNER_012).run()
+    at = generate(app)
+    assert not at.error and len(picks(at)) == 20
+
+
+def test_paste_mode_with_empty_text_shows_error(app):
+    app.radio(key="source").set_value("Paste text").run()
+    at = generate(app)
+    assert not at.exception
+    assert "Paste the winner script" in at.error[0].value
+
+
+def test_upload_mode_without_file_shows_error(app):
+    app.radio(key="source").set_value("Upload a file").run()
+    at = generate(app)
+    assert not at.exception
+    assert "Upload a .txt" in at.error[0].value
+
+
+def test_mock_error_says_how_to_fix(app):
+    app.selectbox(key="sample").select("winner_027.txt").run()
+    at = generate(app)
+    assert "Untick Mock" in at.error[0].value
