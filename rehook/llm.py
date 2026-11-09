@@ -1,0 +1,127 @@
+"""Виклик моделі: промпт з файлу → відповідь у JSON → перевірка → один повтор при помилці.
+
+Тут же облік токенів, вартість запуску і mock-режим (відповіді з tests/fixtures).
+"""
+import json
+import re
+from pathlib import Path
+from typing import Callable
+
+MODEL = "claude-sonnet-5-5"
+PRICE_IN = 2.0    # $ за 1M вхідних токенів
+PRICE_OUT = 10.0  # $ за 1M вихідних токенів
+MAX_TOKENS = 8000
+
+ROOT = Path(__file__).resolve().parent.parent
+PROMPTS_DIR = ROOT / "prompts"
+FIXTURES_DIR = ROOT / "tests" / "fixtures"
+
+PLACEHOLDER_RE = re.compile(r"\{\{(\w+)\}\}")
+
+
+class LLMError(Exception):
+    """Модель не дала придатної відповіді (або немає mock-фікстури)."""
+
+
+def render_prompt(name: str, variables: dict) -> str:
+    """Читає prompts/<name>.md і підставляє {{змінні}}.
+
+    Не str.format: у промптах є фігурні дужки JSON-схем.
+    """
+    text = (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8")
+    for key, value in variables.items():
+        if not isinstance(value, str):
+            value = json.dumps(value, indent=2, ensure_ascii=False)
+        text = text.replace("{{" + key + "}}", value)
+    missing = PLACEHOLDER_RE.findall(text)
+    if missing:
+        raise LLMError(f"prompt {name}.md: no value for {', '.join(missing)}")
+    return text
+
+
+def parse_json(text: str) -> dict:
+    """Знімає обгортку ```json ... ``` (модель іноді її додає) і парсить об'єкт."""
+    cleaned = text.strip()
+    fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", cleaned, re.DOTALL)
+    if fence:
+        cleaned = fence.group(1)
+    data = json.loads(cleaned)  # json.JSONDecodeError — підклас ValueError
+    if not isinstance(data, dict):
+        raise ValueError("expected a JSON object at the top level")
+    return data
+
+
+class LLM:
+    def __init__(self, model: str = MODEL, mock: bool = False, client=None):
+        self.model = model
+        self.mock = mock
+        self._client = client
+        self.usage: list[dict] = []
+
+    @property
+    def client(self):
+        # Клієнт створюємо ліниво: у mock-режимі ключ і мережа не потрібні.
+        if self._client is None:
+            import anthropic
+            self._client = anthropic.Anthropic()
+        return self._client
+
+    def ask_json(self, step: str, prompt_name: str, variables: dict,
+                 validate: Callable[[dict], None], fixture: str | None = None) -> dict:
+        """Повертає перевірений dict. validate кидає ValueError з поясненням, що не так."""
+        if self.mock:
+            return self._from_fixture(step, fixture or step, validate)
+
+        messages = [{"role": "user", "content": render_prompt(prompt_name, variables)}]
+        raw = self._call(step, messages)
+        try:
+            return self._check(raw, validate)
+        except ValueError as first_error:
+            # Один повтор: показуємо моделі її відповідь і текст помилки.
+            messages += [
+                {"role": "assistant", "content": raw or "(empty)"},
+                {"role": "user", "content": f"Your previous reply was invalid: {first_error}. "
+                                            "Reply with the corrected JSON only."},
+            ]
+            raw = self._call(step, messages)
+            try:
+                return self._check(raw, validate)
+            except ValueError as second_error:
+                raise LLMError(f"step {step}: invalid model reply after retry: {second_error}") from None
+
+    def _call(self, step: str, messages: list[dict]) -> str:
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=MAX_TOKENS,
+            output_config={"effort": "low"},  # короткі тексти: швидкість важливіша за глибину
+            messages=messages,
+        )
+        self.usage.append({"step": step, "input_tokens": response.usage.input_tokens,
+                           "output_tokens": response.usage.output_tokens})
+        if response.stop_reason == "refusal":
+            raise LLMError(f"step {step}: the model refused to answer")
+        text = "".join(block.text for block in response.content if block.type == "text")
+        if response.stop_reason == "max_tokens":
+            return ""  # обрізана відповідь — нехай спрацює повтор
+        return text
+
+    @staticmethod
+    def _check(raw: str, validate: Callable[[dict], None]) -> dict:
+        data = parse_json(raw)
+        validate(data)
+        return data
+
+    def _from_fixture(self, step: str, name: str, validate: Callable[[dict], None]) -> dict:
+        path = FIXTURES_DIR / f"{name}.json"
+        if not path.exists():
+            raise LLMError(f"no mock fixture {name}.json")
+        self.usage.append({"step": step, "input_tokens": 0, "output_tokens": 0})
+        try:
+            return self._check(path.read_text(encoding="utf-8"), validate)
+        except ValueError as e:
+            raise LLMError(f"mock fixture {name}.json is invalid: {e}") from None
+
+    def cost(self) -> float:
+        tokens_in = sum(u["input_tokens"] for u in self.usage)
+        tokens_out = sum(u["output_tokens"] for u in self.usage)
+        return (tokens_in * PRICE_IN + tokens_out * PRICE_OUT) / 1_000_000
