@@ -1,5 +1,6 @@
 """Крок 8 (вивід): variants.csv, rejected.csv, brief.md для дизайнера і зведення в консоль."""
 import csv
+import io
 from collections import Counter
 from pathlib import Path
 
@@ -14,12 +15,23 @@ VARIANT_COLUMNS = ["variant_id", "winner_id", "angle_slug", "pain", "persona", "
 REJECTED_COLUMNS = ["variant_id", "angle_slug", "hook_vo", "on_screen_text", "score", "reason"]
 
 
+def _csv_text(rows: list[dict], columns: list[str]) -> str:
+    buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(buffer, fieldnames=columns, extrasaction="ignore")
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({**row, "rule_flags": "; ".join(row.get("rule_flags", []))})
+    return buffer.getvalue()
+
+
 def _write_csv(rows: list[dict], path: Path, columns: list[str]) -> None:
     with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({**row, "rule_flags": "; ".join(row.get("rule_flags", []))})
+        f.write(_csv_text(rows, columns))
+
+
+def variants_csv_text(variants: list[dict]) -> str:
+    """Той самий variants.csv, але рядком: для кнопки «Завантажити» на сторінці."""
+    return _csv_text(variants, VARIANT_COLUMNS)
 
 
 def write_variants_csv(variants: list[dict], path: Path) -> None:
@@ -30,7 +42,7 @@ def write_rejected_csv(rejected: list[dict], path: Path) -> None:
     _write_csv(rejected, path, REJECTED_COLUMNS)
 
 
-def _warnings_of(variant: dict) -> list[str]:
+def variant_warnings(variant: dict) -> list[str]:
     notes = list(variant.get("rule_flags", []))
     if variant.get("claim_ok") is False:
         notes.append(f"claim: {variant.get('claim_note') or 'unsupported claim'}")
@@ -70,7 +82,7 @@ def write_brief(path: Path, winner: dict, parsed: dict, angles: list[dict], sele
                       f"- **First frame:** {v['first_frame']}"]
             if v.get("bridge_line"):
                 lines.append(f"- **Bridge line:** {v['bridge_line']}")
-            for note in _warnings_of(v):
+            for note in variant_warnings(v):
                 lines.append(f"- ⚠️ **{note}**")
             lines.append("")
 

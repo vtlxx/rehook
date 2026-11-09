@@ -1,6 +1,7 @@
 import csv
 
-from rehook.export import VARIANT_COLUMNS, REJECTED_COLUMNS, write_brief, write_rejected_csv, write_variants_csv
+from rehook.export import (VARIANT_COLUMNS, REJECTED_COLUMNS, variant_warnings, variants_csv_text, write_brief,
+                           write_rejected_csv, write_variants_csv)
 
 ROW = {"variant_id": "SL_W012_AI_H11_a", "winner_id": "012", "angle_id": "A1", "angle_slug": "a", "pain": "p",
        "persona": "busy parents", "emotion": "humor", "frame_format": "pov", "hook_type": "question",
@@ -20,6 +21,18 @@ def test_csv_roundtrip_with_commas_and_quotes(tmp_path):
     assert list(back) == VARIANT_COLUMNS
     assert back["hook_vo"] == ROW["hook_vo"] and back["rule_flags"] == "price:$19; caps:NO WAY"
     assert back["claim_ok"] == "False"
+
+
+def test_variants_csv_text_matches_file(tmp_path):
+    # Сторінка для дизайнерів віддає той самий CSV, що й CLI, але з пам'яті.
+    write_variants_csv([ROW], tmp_path / "v.csv")
+    with open(tmp_path / "v.csv", newline="", encoding="utf-8") as f:
+        assert variants_csv_text([ROW]) == f.read()
+
+
+def test_variant_warnings():
+    assert variant_warnings(ROW) == ["price:$19", "caps:NO WAY", "claim: 'cures' — health"]
+    assert variant_warnings(dict(ROW, rule_flags=[], claim_ok=True)) == []
 
 
 def test_rejected_csv(tmp_path):
